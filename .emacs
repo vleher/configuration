@@ -13,32 +13,114 @@
 (unless (package-installed-p 'use-package)        ; Unless "use-package" is installed, install "use-package"
   (package-install 'use-package))
 (require 'use-package)                            ; Once it's installed, we load it using require
+(setq use-package-always-ensure t)
+;; package update configuration
+(use-package auto-package-update
+  :defer 10
+  :config
+  ;; Delete residual old versions
+  (setq auto-package-update-delete-old-versions t)
+  ;; Do not bother me when updates have taken place.
+  (setq auto-package-update-hide-results t)
+  ;; Update installed packages at startup if there is an update pending.
+  (auto-package-update-maybe))
+
+;; Configure the Emacs Frame
+(setq inhibit-startup-screen t)
+(tool-bar-mode 0)
+(blink-cursor-mode 0)
+(setq gc-cons-threshold 10000000)
+(setq ring-bell-function 'ignore)
+(setq initial-scratch-message nil)
+(setq sentence-end-double-space nil)
+
+;; set everything to UTF8
+(set-charset-priority 'unicode)
+(setq locale-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+(setq default-process-coding-system '(utf-8-unix . utf-8-unix))
 
 ;; Make sure packages are downloaded and installed before they are run
 ;; also frees you from having to put :ensure t after installing EVERY PACKAGE.
 (setq use-package-always-ensure t)
+(setq lexical-binding t)
 
 ;; Revert the buffer automatically if it changes in the filesystem
 (global-auto-revert-mode 1)
+;; Resume the previous session
+(desktop-save-mode 1)
+;; Smoother scrolling
+(setq scroll-margin 0)
+(setq scroll-conservatively 100000)
+(setq scroll-preserve-screen-position 1)
+
+;; All the backups go to the custom folder
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+
 ;; I want spaces for indentation
 (setq-default indent-tabs-mode nil)
 (setq-default tab-bar-mode t)
 (setq-default whitespace-line-column 264)
 
+;; Cleanup whitespace before saving
+(add-hook 'before-save-hook 'whitespace-cleanup)
+
 (set-face-attribute 'default t :font "Noto Sans-11")
 (set-face-attribute 'default nil :font "Noto Sans-11")
 
-(desktop-save-mode 1)
+;; Making it easier to discover Emacs key presses.
+(use-package which-key
+  :diminish
+  :defer 5
+  :config (which-key-mode)
+          (which-key-setup-side-window-bottom)
+          (setq which-key-idle-delay 1.05))
+
+;; Better fonts
+(use-package all-the-icons)
+(use-package all-the-icons-dired
+  :after all-the-icons
+  :hook (dired-mode . all-the-icons-dired-mode))
+
+;; Dim the inactive buffers
+(use-package dimmer
+  :custom (dimmer-fraction 0.1)
+  :config (dimmer-mode))
+
+;; Org Mode Customization
 ;; set maximum indentation for description lists
 (setq org-list-description-max-indent 5)
 ;;Disable highlighting long lines
 (setq whitespace-style '(face tabs empty trailing))
 ;; prevent demoting heading also shifting text inside sections
-(setq org-adapt-indentation nil)
+(setq org-adapt-indentation t)
+(add-hook 'org-mode-hook 'org-indent-mode)
+
+;; Efficient version control.
+;;
+;; Bottom of Emacs will show what branch you're on
+;; and whether the local file is modified or not.
+(use-package magit
+  :config (global-set-key (kbd "C-x g") 'magit-status))
+
+(use-package htmlize :defer t)
+;; Main use: Org produced htmls are coloured.
+;; Can be used to export a file into a coloured html.
+
+;; Get org-headers to look pretty! E.g., * → ⊙, ** ↦ ◯, *** ↦ ★
+;; https://github.com/emacsorphanage/org-bullets
+(use-package org-bullets
+  :hook (org-mode . org-bullets-mode))
+
 ;;set the line number mode to true
 (setq line-number-mode t)
-(global-display-line-numbers-mode)
+(global-display-line-numbers-mode t)
 (column-number-mode 1)
+(delete-selection-mode t)
+(size-indication-mode 1)
 (global-visual-line-mode 1)
 (global-hl-line-mode 1)
 (show-paren-mode 1)
@@ -98,10 +180,41 @@
 (global-set-key (kbd "C-c t") 'counsel-load-theme)
 (global-set-key (kbd "C-c F") 'counsel-org-file)
 
+;;Autocomplete
+(use-package company
+  :diminish
+  :bind (("C-." . #'company-complete))
+  )
+
+;;Easy kill configuration
+(use-package easy-kill
+  :ensure t
+  :config
+  (global-set-key [remap kill-ring-save] #'easy-kill)
+  (global-set-key [remap mark-sexp] #'easy-mark))
 
 (put 'erase-buffer 'disabled nil)
 ;;Adding flyspell for spell checking.
-(dolist (hook '(text-mode-hook)) (add-hook hook (lambda () (flyspell-mode 1))))
+(use-package flyspell
+  :ensure t
+  :defer t
+  :init
+  (progn
+    (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+    (add-hook 'text-mode-hook 'flyspell-mode)
+    )
+  :config
+  ;; Sets flyspell correction to use two-finger mouse click
+  (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
+  )
+
+;; Whitespace configuration
+(use-package whitespace
+  :ensure t
+  :diminish whitespace-mode
+  :init
+  (add-hook 'prog-mode-hook 'whitespace-mode)
+  )
 
 ;; Theme configuration
 (load-theme 'nord t)
@@ -112,3 +225,35 @@
       '(("lostsaloon"
          :url "https://www-test.lostsaloon.com/xmlrpc.php"
          :username "barkeep")))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(git-gutter company org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill zenburn-theme use-package org2blog nord-theme nimbus-theme counsel))
+ '(size-indication-mode t))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+;;Aggressive indent mode
+;;(use-package aggressive-indent :ensure t)
+
+;; Window switching configuration ;; Ace Window
+(use-package ace-window
+  :ensure t
+  :config
+(global-set-key (kbd "<C-tab>") 'ace-window)
+(setq aw-keys '(?e ?t ?a ?h ?i ?s ?w ?n ?p ?c)))
+
+
+;; Magit configuration
+(use-package magit
+  :bind ("C-x g" . magit-status))
+(use-package git-gutter
+  :config
+  (global-git-gutter-mode 't))
