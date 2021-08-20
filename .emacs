@@ -76,8 +76,8 @@
   :diminish
   :defer 5
   :config (which-key-mode)
-          (which-key-setup-side-window-bottom)
-          (setq which-key-idle-delay 1.05))
+  (which-key-setup-side-window-bottom)
+  (setq which-key-idle-delay 1.05))
 
 ;; Better fonts
 (use-package all-the-icons)
@@ -87,7 +87,7 @@
 
 ;; Dim the inactive buffers
 (use-package dimmer
-  :custom (dimmer-fraction 0.1)
+  :custom (dimmer-fraction 0.31)
   :config (dimmer-mode))
 
 ;; Org Mode Customization
@@ -125,39 +125,42 @@
 (global-hl-line-mode 1)
 (show-paren-mode 1)
 
+;; Fido mode and configuration
+(fido-mode t)
+
 ;;Ivy configuration
-(use-package counsel
-  :after ivy
-  :config (counsel-mode))
+;; (use-package counsel
+;;   :after ivy
+;;   :config (counsel-mode))
 
-(use-package ivy
-  :defer 0.1
-  :diminish
-  :bind (("C-c C-r" . ivy-resume)
-         ("C-x B" . ivy-switch-buffer-other-window))
-  :custom
-  (ivy-count-format "(%d/%d) ")
-  (ivy-use-virtual-buffers t)
-  :config (ivy-mode))
+;; (use-package ivy
+;;   :defer 0.1
+;;   :diminish
+;;   :bind (("C-c C-r" . ivy-resume)
+;;          ("C-x B" . ivy-switch-buffer-other-window))
+;;   :custom
+;;   (ivy-count-format "(%d/%d) ")
+;;   (ivy-use-virtual-buffers t)
+;;   :config (ivy-mode))
 
-(use-package swiper
-  :after ivy
- )
+;; (use-package swiper
+;;   :after ivy
+;;  )
 
-(global-set-key (kbd "C-s") 'swiper)
-(global-set-key (kbd "C-r") 'swiper-backward)
-(global-set-key (kbd "M-x") 'counsel-M-x)
-(global-set-key (kbd "C-x b") 'ivy-switch-buffer)
-(global-set-key (kbd "C-c v") 'ivy-push-view)
-(global-set-key (kbd "C-c V") 'ivy-pop-view)
+;; (global-set-key (kbd "C-s") 'swiper)
+;; (global-set-key (kbd "C-r") 'swiper-backward)
+;; (global-set-key (kbd "M-x") 'counsel-M-x)
+;; (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
+;; (global-set-key (kbd "C-c v") 'ivy-push-view)
+;; (global-set-key (kbd "C-c V") 'ivy-pop-view)
 
 ;;Autocomplete
-(use-package company
-  :diminish
-  :bind (("C-." . #'company-complete))
-  )
+;; (use-package company
+;;   :diminish
+;;   :bind (("C-." . #'company-complete))
+;;   )
 
-;;Easy kill configuration
+;;Easy kill setup and configuration
 (use-package easy-kill
   :ensure t
   :config
@@ -173,6 +176,8 @@
   (progn
     (add-hook 'prog-mode-hook 'flyspell-prog-mode)
     (add-hook 'text-mode-hook 'flyspell-mode)
+    (add-hook 'emacs-lisp-mode-hook 'flyspell-mode)
+    (add-hook 'lisp-interaction-mode-hook 'flyspell-mode)
     )
   :config
   ;; Sets flyspell correction to use two-finger mouse click
@@ -191,18 +196,38 @@
 (load-theme 'nord t)
 
 ;; Org2Blog configuration
-(use-package org2blog  :ensure t)
-(setq org2blog/wp-blog-alist
-      '(("lostsaloon"
-         :url "https://www-test.lostsaloon.com/xmlrpc.php"
-         :username "barkeep")))
+(use-package xml-rpc
+  :ensure t
+  :defer t)
+(use-package netrc
+  :ensure t
+  :defer t)
+
+(use-package org2blog
+  :ensure t
+  :bind ("C-x w" .  org2blog-user-interface)
+  :defer t
+  :init
+  (setq org2blog/wp-blog-alist
+        '(("lostsaloon"
+           :url "http://www-testsite.lostsaloon.com/xmlrpc.php"
+           :username "barkeep"
+           :password "D-Young06."
+           :confirm t))
+        ))
+
+
+(setq org2blog/wp-show-post-in-browser t)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("dbade2e946597b9cda3e61978b5fcc14fa3afa2d3c4391d477bdaeff8f5638c5" "801a567c87755fe65d0484cb2bded31a4c5bb24fd1fe0ed11e6c02254017acb2" "6bffac6f528e43839861be1d7facf8054b57edc1ffc70f7be885da7d181ecbac" "37768a79b479684b0756dec7c0fc7652082910c37d8863c35b702db3f16000f8" "549ccbd11c125a4e671a1e8d3609063a91228e918ffb269e57bd2cd2c0a6f1c6" default))
+ '(fido-mode t)
  '(package-selected-packages
-   '(git-gutter company org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill zenburn-theme use-package org2blog nord-theme nimbus-theme counsel))
+   '(tao-theme dracula-theme git-gutter org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
  '(size-indication-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -218,8 +243,8 @@
 (use-package ace-window
   :ensure t
   :config
-(global-set-key (kbd "<C-tab>") 'ace-window)
-(setq aw-keys '(?e ?t ?a ?h ?i ?s ?w ?n ?p ?c)))
+  (global-set-key (kbd "<C-tab>") 'ace-window)
+  (setq aw-keys '(?e ?t ?a ?h ?i ?s ?w ?n ?p ?c)))
 
 
 ;; Magit configuration
