@@ -1,0 +1,43 @@
+#!/bin/bash
+
+if [[ $# -eq 0 ]] 
+then
+    echo 'Specify correlation name'
+    exit 1
+fi
+
+case $1 in
+    c1)
+        echo "Deleting CORRELATION"
+        corrKey="PredictedTicker:*CORRELATION:*"
+        jobKey="JobUpdateStatus:*:CP_PREDICTION:CORRELATION"
+        ;;
+    c2)
+        echo "Deleting CORRELATION2"
+        corrKey="PredictedTicker:*CORRELATION2:*"
+        jobKey="JobUpdateStatus:*:CP_PREDICTION:CORRELATION2"
+        ;;
+    c3)
+        echo "Deleting CORRELATION3"
+        corrKey="PredictedTicker:*CORRELATION3:*"
+        jobKey="JobUpdateStatus:*:CP_PREDICTION:CORRELATION3"
+        ;;    
+    *) 
+        echo "Wrong correlation : $1"
+        exit 1    
+esac
+
+redis-cli keys $corrKey
+echo -n "Want to remove the rows (y/n) "
+read -n1 ANS
+if [[ $ANS == "y" ]]; then
+    redis-cli keys $corrKey | xargs redis-cli del
+fi
+
+redis-cli keys $jobKey
+echo -n "Want to remove the rows (y/n) "
+read -n1 ANS
+if [[ $ANS == "y" ]]; then
+    redis-cli keys $jobKey | xargs redis-cli del
+fi
+

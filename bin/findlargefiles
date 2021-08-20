@@ -1,0 +1,2 @@
+#!/bin/sh
+find $1 -printf "%s\t%p\n" | sort -n

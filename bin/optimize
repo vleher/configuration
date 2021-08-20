@@ -1,0 +1,16 @@
+#!/bin/bash
+for i in $(find . -maxdepth 1 -type f -iname "*.jpg" -exec basename '{}' \;); do
+	echo "--- Start on $i ------"
+	if [[ $i == "original-"* ]] ; then
+		echo "Skipping $i"
+	else 
+		echo "Processing $i"
+		if [ -f original-$i ] ; then
+			echo "Back up exists. Skip backup"
+		else
+			mv -v $i original-$i
+		fi
+		jpegtran -optimize -copy none -progressive -outfile $i original-$i
+	fi
+	echo "--- Done with $i ------"
+done;	
