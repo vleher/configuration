@@ -25,10 +25,16 @@
   ;; Update installed packages at startup if there is an update pending.
   (auto-package-update-maybe))
 
+;; Load server if not already running
+(load "server")
+(unless (server-running-p) (server-start))
+
 ;; Configure the Emacs Frame
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (blink-cursor-mode 0)
+(menu-bar-mode -1)
+(setq frame-title-format '("" "[%b] <%f> - Emacs " emacs-version))
 (setq gc-cons-threshold 10000000)
 (setq ring-bell-function 'ignore)
 (setq initial-scratch-message nil)
@@ -68,8 +74,8 @@
 ;; Cleanup whitespace before saving
 (add-hook 'before-save-hook 'whitespace-cleanup)
 
-(set-face-attribute 'default t :font "Noto Sans-11")
-(set-face-attribute 'default nil :font "Noto Sans-11")
+(set-face-attribute 'default t :font "Noto Sans-10.5")
+(set-face-attribute 'default nil :font "Noto Sans-10.5")
 
 ;; Making it easier to discover Emacs key presses.
 (use-package which-key
@@ -103,8 +109,6 @@
 ;;
 ;; Bottom of Emacs will show what branch you're on
 ;; and whether the local file is modified or not.
-(use-package magit
-  :config (global-set-key (kbd "C-x g") 'magit-status))
 
 (use-package htmlize :defer t)
 ;; Main use: Org produced htmls are coloured.
@@ -125,40 +129,16 @@
 (global-hl-line-mode 1)
 (show-paren-mode 1)
 
+(global-auto-revert-mode 1)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(tab-bar-mode -1)
+
+(recentf-mode 1)
+(setq recentf-max-saved-items 50)
+
 ;; Fido mode and configuration
 (fido-mode t)
-
-;;Ivy configuration
-;; (use-package counsel
-;;   :after ivy
-;;   :config (counsel-mode))
-
-;; (use-package ivy
-;;   :defer 0.1
-;;   :diminish
-;;   :bind (("C-c C-r" . ivy-resume)
-;;          ("C-x B" . ivy-switch-buffer-other-window))
-;;   :custom
-;;   (ivy-count-format "(%d/%d) ")
-;;   (ivy-use-virtual-buffers t)
-;;   :config (ivy-mode))
-
-;; (use-package swiper
-;;   :after ivy
-;;  )
-
-;; (global-set-key (kbd "C-s") 'swiper)
-;; (global-set-key (kbd "C-r") 'swiper-backward)
-;; (global-set-key (kbd "M-x") 'counsel-M-x)
-;; (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
-;; (global-set-key (kbd "C-c v") 'ivy-push-view)
-;; (global-set-key (kbd "C-c V") 'ivy-pop-view)
-
-;;Autocomplete
-;; (use-package company
-;;   :diminish
-;;   :bind (("C-." . #'company-complete))
-;;   )
 
 ;;Easy kill setup and configuration
 (use-package easy-kill
@@ -194,6 +174,7 @@
 
 ;; Theme configuration
 (load-theme 'nord t)
+(setq nord-region-highlight "frost")
 
 ;; Org2Blog configuration
 (use-package xml-rpc
@@ -203,20 +184,6 @@
   :ensure t
   :defer t)
 
-(use-package org2blog
-  :ensure t
-  :bind ("C-x w" .  org2blog-user-interface)
-  :defer t
-  :init
-  (setq org2blog/wp-blog-alist
-        '(("lostsaloon"
-           :url "http://www-testsite.lostsaloon.com/xmlrpc.php"
-           :username "barkeep"
-           :password "D-Young06."
-           :confirm t))
-        ))
-
-
 (setq org2blog/wp-show-post-in-browser t)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -224,10 +191,10 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("dbade2e946597b9cda3e61978b5fcc14fa3afa2d3c4391d477bdaeff8f5638c5" "801a567c87755fe65d0484cb2bded31a4c5bb24fd1fe0ed11e6c02254017acb2" "6bffac6f528e43839861be1d7facf8054b57edc1ffc70f7be885da7d181ecbac" "37768a79b479684b0756dec7c0fc7652082910c37d8863c35b702db3f16000f8" "549ccbd11c125a4e671a1e8d3609063a91228e918ffb269e57bd2cd2c0a6f1c6" default))
+   '("0710b0bdd59c8a7aacf0640591b38fcad5978a0fcfff3fdd999e63499ada8e3e" "dbade2e946597b9cda3e61978b5fcc14fa3afa2d3c4391d477bdaeff8f5638c5" "801a567c87755fe65d0484cb2bded31a4c5bb24fd1fe0ed11e6c02254017acb2" "6bffac6f528e43839861be1d7facf8054b57edc1ffc70f7be885da7d181ecbac" "37768a79b479684b0756dec7c0fc7652082910c37d8863c35b702db3f16000f8" "549ccbd11c125a4e671a1e8d3609063a91228e918ffb269e57bd2cd2c0a6f1c6" default))
  '(fido-mode t)
  '(package-selected-packages
-   '(tao-theme dracula-theme git-gutter org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
+   '(javadoc-lookup mvn helm-lsp yasnippet-snippets yasnippet flycheck nordless-theme csv-mode magithub tao-theme dracula-theme git-gutter org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
  '(size-indication-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -250,6 +217,123 @@
 ;; Magit configuration
 (use-package magit
   :bind ("C-x g" . magit-status))
+
 (use-package git-gutter
   :config
   (global-git-gutter-mode 't))
+(put 'scroll-left 'disabled nil)
+
+(require 'lsp-mode)
+;; Java specific configuration
+(require 'lsp-java)
+(add-hook 'java-mode-hook #'lsp)
+(add-hook 'java-mode-hook 'flycheck-mode)
+(add-hook 'java-mode-hook 'company-mode)
+(add-hook 'after-init-hook 'global-company-mode)
+
+;; Show all documestation
+(setq lsp-eldoc-render-all t)
+
+(use-package company :ensure t)
+
+(use-package projectile
+  :ensure t
+  :config
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (projectile-mode +1))
+(setq projectile-indexing-method 'alien)
+
+(use-package flycheck :ensure t :init (global-flycheck-mode))
+
+;; yasnippet configuration
+(use-package yasnippet :config (yas-global-mode))
+(use-package yasnippet-snippets :ensure t)
+
+;; lsp mode
+(use-package lsp-mode
+  :ensure t
+  :hook (
+         (lsp-mode . lsp-enable-which-key-integration)
+         (java-mode . #'lsp-deferred)
+         )
+  :init (setq
+         lsp-keymap-prefix "C-c l"              ; this is for which-key integration documentation, need to use lsp-mode-map
+         lsp-enable-file-watchers nil
+         read-process-output-max (* 1024 1024)  ; 1 mb
+         lsp-completion-provider :capf
+         lsp-idle-delay 0.500
+         )
+  :config
+  (setq lsp-intelephense-multi-root nil) ; don't scan unnecessary projects
+  (setq lsp-completion-enable-additional-text-edit nil)
+  (with-eval-after-load 'lsp-intelephense
+    (setf (lsp--client-multi-root (gethash 'iph lsp-clients)) nil))
+  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
+  )
+(use-package hydra)
+(use-package lsp-ui
+  :ensure t
+  :after (lsp-mode)
+  :bind (:map lsp-ui-mode-map
+              ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+              ([remap xref-find-references] . lsp-ui-peek-find-references))
+  :init (setq lsp-ui-doc-delay 1.5
+              lsp-ui-doc-position 'bottom
+	      lsp-ui-doc-max-width 100
+              ))
+
+(use-package lsp-java :ensure t :config (add-hook 'java-mode-hook 'lsp))
+
+;; DAP mode for debugging
+(use-package dap-mode
+  :ensure t
+  :after (lsp-mode)
+  :functions dap-hydra/nil
+  :config
+  (require 'dap-java)
+  :bind (:map lsp-mode-map
+              ("<f5>" . dap-debug)
+              ("M-<f5>" . dap-hydra))
+  :hook ((dap-mode . dap-ui-mode)
+         (dap-session-created . (lambda (&_rest) (dap-hydra)))
+         (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))))
+(use-package dap-java :ensure nil)
+
+(use-package helm-lsp
+  :ensure t
+  :after (lsp-mode)
+  :commands (helm-lsp-workspace-symbol)
+  :init (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol))
+(use-package helm
+  :ensure t
+  :init
+  (helm-mode 1)
+  (progn (setq helm-buffers-fuzzy-matching t))
+  :bind
+  (("C-c h" . helm-command-prefix))
+  (("M-x" . helm-M-x))
+  (("C-x C-f" . helm-find-files))
+  (("C-x b" . helm-buffers-list))
+  (("C-c b" . helm-bookmarks))
+  (("C-c f" . helm-recentf))   ;; Add new key to recentf
+  (("C-c g" . helm-grep-do-git-grep)))  ;; Search using grep in a git project
+
+;;treemacs
+(use-package lsp-treemacs
+  :after (lsp-mode treemacs)
+  :ensure t
+  :commands lsp-treemacs-errors-list
+  :bind (:map lsp-mode-map
+              ("M-9" . lsp-treemacs-errors-list)))
+
+(use-package treemacs
+  :ensure t
+  :commands (treemacs)
+  :after (lsp-mode))
+
+
+
+;; Automatically add ending brackets and braces
+(electric-pair-mode 1)
+;; Highlight matching brackets and braces
+(show-paren-mode 1)
