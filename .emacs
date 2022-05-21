@@ -173,6 +173,7 @@
   )
 
 ;; Theme configuration
+(add-to-list 'custom-theme-load-path (expand-file-name "~/.emacs.d/themes/"))
 (load-theme 'nord t)
 (setq nord-region-highlight "frost")
 
@@ -223,9 +224,7 @@
   (global-git-gutter-mode 't))
 (put 'scroll-left 'disabled nil)
 
-(require 'lsp-mode)
 ;; Java specific configuration
-(require 'lsp-java)
 (add-hook 'java-mode-hook #'lsp)
 (add-hook 'java-mode-hook 'flycheck-mode)
 (add-hook 'java-mode-hook 'company-mode)
@@ -331,9 +330,5 @@
   :commands (treemacs)
   :after (lsp-mode))
 
-
-
 ;; Automatically add ending brackets and braces
 (electric-pair-mode 1)
-;; Highlight matching brackets and braces
-(show-paren-mode 1)
