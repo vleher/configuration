@@ -1,0 +1,24 @@
+[user]
+	name = leher
+	email = vleher@gmail.com
+[core]
+        editor = emacs
+        eol = lf
+        autocrlf = input
+        sparsecheckout = true
+        excludesfile = ~/configuration/.gitignore_global
+[color]
+        ui = true
+[diff]
+        tool = diff
+[alias]
+        co = checkout
+        br = branch
+        ci = commit
+        st = status
+        up = !git fetch && git rebase --autostash FETCH_HEAD
+        lg = log --pretty=format: '%h %ad | %s%d [%an]' --graph --date=short --abbrev-commit -100
+[pull]
+        rebase = true
+[rebase]
+        autostash = true
