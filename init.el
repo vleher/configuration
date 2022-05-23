@@ -495,5 +495,8 @@
 ;; Automatically add ending brackets and braces
 (electric-pair-mode 1)
 
+;;(setenv "JAVA_HOME" "~/.jdks/openjdk-17.0.1")
+;;(setq lsp-java-java-path "~/.jdks/openjdk-17.0.1/bin/java")
+
 (provide 'init)
 ;;; init.el ends here
