@@ -107,7 +107,7 @@
 (set-face-attribute 'default nil :font "Noto Sans-10.5")
 
 ;; Making it easier to discover Emacs key presses.
-(use-package which-key
+ (use-package which-key
   :diminish
   :defer 5
   :config (which-key-mode)
