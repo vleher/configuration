@@ -42,7 +42,7 @@
 
 ;; Load server if not already running
 (load "server")
- (unless (server-running-p) (server-start))
+(unless (server-running-p) (server-start))
 
 ;; Configure the Emacs Frame
 (setq inhibit-startup-screen t)
@@ -77,13 +77,6 @@
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-0") 'text-scale-adjust)
-
-;; Indent, untabify and clean whitespace of region or buffer.
-(global-set-key (kbd "C-c c") 'cleanup-region-or-buffer)
-
-;; Intelligent line opening that also places cursor on new line.
-(global-set-key (kbd "C-o") 'prelude-smart-open-line)
-(global-set-key (kbd "M-o") 'open-line) ;; Default way.
 
 ;; Make sure packages are downloaded and installed before they are run
 ;; also frees you from having to put :ensure t after installing EVERY PACKAGE.
@@ -305,11 +298,14 @@
 ;;;; Company ;;;;
 (use-package company
   :config
-  (setq company-idle-delay 0.3)
-
+  (setq company-idle-delay 0.3
+        company-minimum-prefix-length 1
+        company-require-match nil
+        company-selection-wrap-around t
+        company-tooltip-align-annotations t)
   (global-company-mode 1)
 
-  (global-set-key (kbd "C-=") 'company-complete))
+  (global-set-key (kbd "C-,") 'company-complete))
 
 ;; Show icons in company completion UI.
 (use-package company-box
@@ -459,10 +455,6 @@
   (global-set-key (kbd "C-y") #'yank-pop-hydra/yank)
 
   (defhydra compilation-hydra (:columns 4)
-    "
-Command: %(netrom/compilation-command-string)
-%(netrom/compilation-scroll-output-string) + %(netrom/compilation-skip-threshold-string)
-"
     ("c" compile "Compile")
     ("C" compile-from-buffer-folder "Compile from buffer folder")
     ("r" recompile "Recompile")
@@ -502,3 +494,6 @@ Command: %(netrom/compilation-command-string)
 
 ;; Automatically add ending brackets and braces
 (electric-pair-mode 1)
+
+(provide 'init)
+;;; init.el ends here
