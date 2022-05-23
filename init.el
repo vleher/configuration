@@ -309,7 +309,7 @@
 
   (global-company-mode 1)
 
-  (global-set-key (kbd "C-<tab>") 'company-complete))
+  (global-set-key (kbd "C-=") 'company-complete))
 
 ;; Show icons in company completion UI.
 (use-package company-box
