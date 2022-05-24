@@ -16,10 +16,6 @@
 (defconst --user-cache-dir (concat user-emacs-directory "cache/"))
 (defconst --auto-save-dir (concat user-emacs-directory "auto-save/"))
 
-;; Create necessary directories if missing.
-;;(mkdir --user-cache-dir)
-;;(mkdir --auto-save-dir)
-
 (package-initialize)                 ; Initializes the package system and prepares it to be used
 (unless package-archive-contents     ; Unless a package archive already exists,
   (package-refresh-contents))        ; Refresh package contents so that Emacs knows which packages to load
@@ -92,19 +88,36 @@
 (setq scroll-conservatively 100000)
 (setq scroll-preserve-screen-position 1)
 
-;; All the backups go to the custom folder
-(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+;; Put backup files neatly away
+(let ((backup-dir "~/emacs.d/backups")
+      (auto-saves-dir "~/emacs.d/auto-saves/"))
+  (dolist (dir (list backup-dir auto-saves-dir))
+    (when (not (file-directory-p dir))
+      (make-directory dir t)))
+  (setq backup-directory-alist `(("." . ,backup-dir))
+        auto-save-file-name-transforms `((".*" ,auto-saves-dir t))
+        auto-save-list-file-prefix (concat auto-saves-dir ".saves-")
+        tramp-backup-directory-alist `((".*" . ,backup-dir))
+        tramp-auto-save-directory auto-saves-dir))
 
-;; I want spaces for indentation
-(setq-default indent-tabs-mode nil)
+(setq backup-by-copying t    ; Don't delink hardlinks
+      delete-old-versions t  ; Clean up the backups
+      version-control t      ; Use version numbers on backups,
+      kept-new-versions 5    ; keep some new versions
+      kept-old-versions 2)   ; and some old ones, too
+
 (setq-default tab-bar-mode t)
 (setq-default whitespace-line-column 264)
 
 ;; Cleanup whitespace before saving
 (add-hook 'before-save-hook 'whitespace-cleanup)
 
-(set-face-attribute 'default t :font "Noto Sans-10.5")
-(set-face-attribute 'default nil :font "Noto Sans-10.5")
+(cond
+  ((find-font (font-spec :name "Noto Sans"))
+   (set-face-attribute 'default nil :font "Noto Sans-10.25"))
+  ((find-font (font-spec :name "Calibria"))
+   (set-face-attribute 'default nil :font "Calibria-12"))
+  )
 
 ;; Making it easier to discover Emacs key presses.
  (use-package which-key
@@ -178,20 +191,20 @@
 
 (put 'erase-buffer 'disabled nil)
 ;;Adding flyspell for spell checking.
-(use-package flyspell
-  :ensure t
-  :defer t
-  :init
-  (progn
-    (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-    (add-hook 'text-mode-hook 'flyspell-mode)
-    (add-hook 'emacs-lisp-mode-hook 'flyspell-mode)
-    (add-hook 'lisp-interaction-mode-hook 'flyspell-mode)
-    )
-  :config
-  ;; Sets flyspell correction to use two-finger mouse click
-  (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
-  )
+;; (use-package flyspell
+;;   :ensure t
+;;   :defer t
+;;   :init
+;;   (progn
+;;     (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+;;     (add-hook 'text-mode-hook 'flyspell-mode)
+;;     (add-hook 'emacs-lisp-mode-hook 'flyspell-mode)
+;;     (add-hook 'lisp-interaction-mode-hook 'flyspell-mode)
+;;     )
+;;   :config
+;;   ;; Sets flyspell correction to use two-finger mouse click
+;;   (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
+;;   )
 
 ;; Whitespace configuration
 (use-package whitespace
@@ -224,7 +237,7 @@
    '("0710b0bdd59c8a7aacf0640591b38fcad5978a0fcfff3fdd999e63499ada8e3e" "dbade2e946597b9cda3e61978b5fcc14fa3afa2d3c4391d477bdaeff8f5638c5" "801a567c87755fe65d0484cb2bded31a4c5bb24fd1fe0ed11e6c02254017acb2" "6bffac6f528e43839861be1d7facf8054b57edc1ffc70f7be885da7d181ecbac" "37768a79b479684b0756dec7c0fc7652082910c37d8863c35b702db3f16000f8" "549ccbd11c125a4e671a1e8d3609063a91228e918ffb269e57bd2cd2c0a6f1c6" default))
  '(fido-mode t)
  '(package-selected-packages
-   '(marginalia prescient orderless lsp-java lsp-ui hydra lsp-mode projectile company-flx company-box company markdown-mode php-mode json-mode selectrum-prescient selectrum maven-test-mode javadoc-lookup mvn helm-lsp yasnippet-snippets yasnippet flycheck nordless-theme csv-mode magithub tao-theme dracula-theme git-gutter org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
+   '(company-fuzzy company-org-block company-php treemacs-all-the-icons treemacs-icons-dired treemacs-magit marginalia prescient orderless lsp-java lsp-ui hydra lsp-mode projectile company-flx company-box company markdown-mode php-mode json-mode selectrum-prescient selectrum maven-test-mode javadoc-lookup mvn helm-lsp yasnippet-snippets yasnippet flycheck nordless-theme csv-mode magithub tao-theme dracula-theme git-gutter org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
  '(size-indication-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -304,8 +317,9 @@
         company-selection-wrap-around t
         company-tooltip-align-annotations t)
   (global-company-mode 1)
-
   (global-set-key (kbd "C-,") 'company-complete))
+
+(setq company-dabbrev-downcase nil)
 
 ;; Show icons in company completion UI.
 (use-package company-box
@@ -495,8 +509,9 @@
 ;; Automatically add ending brackets and braces
 (electric-pair-mode 1)
 
-;;(setenv "JAVA_HOME" "~/.jdks/openjdk-17.0.1")
-;;(setq lsp-java-java-path "~/.jdks/openjdk-17.0.1/bin/java")
+(when (eq system-type 'windows-nt)
+  (setenv "JAVA_HOME" "~/.jdks/openjdk-17.0.1")
+  (setq lsp-java-java-path "~/.jdks/openjdk-17.0.1/bin/java"))
 
 (provide 'init)
 ;;; init.el ends here
