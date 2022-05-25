@@ -1,8 +1,12 @@
-;;; Emacs Configuration --- all
+;;; init.el --- Emacs Configuration All
+
+;;; Commentary:
+;;
 
 (require 'package)                   ; Bring in to the environment all package management functions
 
 ;; A list of package repositories
+;;; Code:
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("org"   . "https://orgmode.org/elpa/")
                          ("elpa"  . "https://elpa.gnu.org/packages/")))
@@ -15,7 +19,6 @@
 (defconst --themes-dir (concat user-emacs-directory "themes/"))
 (defconst --user-cache-dir (concat user-emacs-directory "cache/"))
 (defconst --auto-save-dir (concat user-emacs-directory "auto-save/"))
-
 (package-initialize)                 ; Initializes the package system and prepares it to be used
 (unless package-archive-contents     ; Unless a package archive already exists,
   (package-refresh-contents))        ; Refresh package contents so that Emacs knows which packages to load
@@ -113,8 +116,10 @@
 (add-hook 'before-save-hook 'whitespace-cleanup)
 
 (cond
+   ((find-font (font-spec :name "DejaVu Sans"))
+   (set-face-attribute 'default nil :font "DejaVu Sans-10.0"))
   ((find-font (font-spec :name "Noto Sans"))
-   (set-face-attribute 'default nil :font "Noto Sans-10.25"))
+   (set-face-attribute 'default nil :font "Noto Sans-10.0"))
   ((find-font (font-spec :name "Calibria"))
    (set-face-attribute 'default nil :font "Calibria-12"))
   )
@@ -256,6 +261,25 @@
   (global-set-key (kbd "<C-tab>") 'ace-window)
   (setq aw-keys '(?e ?t ?a ?h ?i ?s ?w ?n ?p ?c)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Custom splitting functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun vsplit-last-buffer ()
+  (interactive)
+  (split-window-vertically)
+  (other-window 1 nil)
+  (switch-to-next-buffer)
+  )
+(defun hsplit-last-buffer ()
+  (interactive)
+   (split-window-horizontally)
+  (other-window 1 nil)
+  (switch-to-next-buffer)
+  )
+
+(global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
+(global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
 
 ;; Magit configuration
 (use-package magit
@@ -319,6 +343,7 @@
   (global-company-mode 1)
   (global-set-key (kbd "C-,") 'company-complete))
 
+(setq company-dabbrev-ignore-case t)
 (setq company-dabbrev-downcase nil)
 
 ;; Show icons in company completion UI.
@@ -512,6 +537,18 @@
 (when (eq system-type 'windows-nt)
   (setenv "JAVA_HOME" "~/.jdks/openjdk-17.0.1")
   (setq lsp-java-java-path "~/.jdks/openjdk-17.0.1/bin/java"))
+
+;; Set Windows-specific preferences if running in a Windows environment.
+(defun udf-windows-setup () (interactive)
+  ;; The variable `git-shell-path' contains the path to the `Git\bin'
+  (setq git-shell-path ("C:\\Program Files\\Git\\bin"))
+  (setq git-shell-executable (concat git-shell-path "\\bash.exe"))
+  (add-to-list 'exec-path git-shell-path)
+  (setenv "PATH" (concat git-shell-path ";" (getenv "PATH"))))
+
+(if (eq system-type 'windows-nt)
+    (udf-windows-setup))
+
 
 (provide 'init)
 ;;; init.el ends here
