@@ -2,7 +2,6 @@
 
 ;;; Commentary:
 ;;
-
 (require 'package)                   ; Bring in to the environment all package management functions
 
 ;; A list of package repositories
@@ -68,7 +67,7 @@
 (global-set-key [remap move-beginning-of-line] 'smarter-move-beginning-of-line)
 
 ;; Cycle through "just one space", "no spaces" and original number of spaces,
-;; instead of just "just one space". It does not delete newlines, too.
+;; instead of just "just one space". It does not delete newlines either
 (global-set-key (kbd "M-SPC")
                 '(lambda () (interactive) (cycle-spacing +1 t)))
 
@@ -152,12 +151,8 @@
 (setq org-adapt-indentation t)
 (add-hook 'org-mode-hook 'org-indent-mode)
 
-;; Efficient version control.
-;;
-;; Bottom of Emacs will show what branch you're on
-;; and whether the local file is modified or not.
-
 (use-package htmlize :defer t)
+
 ;; Main use: Org produced htmls are coloured.
 ;; Can be used to export a file into a coloured html.
 
@@ -174,12 +169,7 @@
 (size-indication-mode 1)
 (global-visual-line-mode 1)
 (global-hl-line-mode 1)
-(show-paren-mode 1)
-
-(global-auto-revert-mode 1)
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(tab-bar-mode -1)
+(show-paren-mode
 
 (recentf-mode 1)
 (setq recentf-max-saved-items 50)
@@ -195,6 +185,7 @@
   (global-set-key [remap mark-sexp] #'easy-mark))
 
 (put 'erase-buffer 'disabled nil)
+
 ;;Adding flyspell for spell checking.
 ;; (use-package flyspell
 ;;   :ensure t
@@ -216,8 +207,7 @@
   :ensure t
   :diminish whitespace-mode
   :init
-  (add-hook 'prog-mode-hook 'whitespace-mode)
-  )
+  (add-hook 'prog-mode-hook 'whitespace-mode))
 
 ;; Theme configuration
 (add-to-list 'custom-theme-load-path (expand-file-name --themes-dir))
@@ -225,14 +215,14 @@
 (setq nord-region-highlight "frost")
 
 ;; Org2Blog configuration
-(use-package xml-rpc
-  :ensure t
-  :defer t)
-(use-package netrc
-  :ensure t
-  :defer t)
+;; (use-package xml-rpc
+;;   :ensure t
+;;   :defer t)
+;; (use-package netrc
+;;   :ensure t
+;;   :defer t)
 
-(setq org2blog/wp-show-post-in-browser t)
+;; (setq org2blog/wp-show-post-in-browser t)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -320,7 +310,6 @@
 (use-package markdown-mode
   :mode (("\\.markdown\\'" . markdown-mode)
          ("\\.md\\'" . markdown-mode))
-
   :config
   ;; Turn off auto-fill-mode beacuse markdown is sensitive about newlines.
   (add-hook 'markdown-mode-hook
@@ -426,27 +415,7 @@
          (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))))
 (use-package dap-java :ensure nil)
 
-;; (use-package helm-lsp
-;;   :ensure t
-;;   :after (lsp-mode)
-;;   :commands (helm-lsp-workspace-symbol)
-;;   :init (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol))
-;; (use-package helm
-;;   :ensure t
-;;   :init
-;;   (helm-mode 1)
-;;   (progn (setq helm-buffers-fuzzy-matching t))
-;;   :bind
-;;   (("C-c h" . helm-command-prefix))
-;;   (("M-x" . helm-M-x))
-;;   (("C-x C-f" . helm-find-files))
-;;   (("C-x b" . helm-buffers-list))
-;;   (("C-c b" . helm-bookmarks))
-;;   (("C-c f" . helm-recentf))   ;; Add new key to recentf
-;;   (("C-c g" . helm-grep-do-git-grep)))  ;; Search using grep in a git project
-
 ;;;;; Selectrum ;;;;;
-
 (use-package orderless
   :config
   (setq completion-styles '(orderless)))
@@ -479,7 +448,6 @@
   (selectrum-prescient-mode +1))
 
 ;;;;; Hydra ;;;;;
-
 (use-package hydra
   :config
   ;; Easier cycling of yanking.
@@ -539,15 +507,15 @@
   (setq lsp-java-java-path "~/.jdks/openjdk-17.0.1/bin/java"))
 
 ;; Set Windows-specific preferences if running in a Windows environment.
-(defun udf-windows-setup () (interactive)
-  ;; The variable `git-shell-path' contains the path to the `Git\bin'
-  (setq git-shell-path ("C:\\Program Files\\Git\\bin"))
-  (setq git-shell-executable (concat git-shell-path "\\bash.exe"))
-  (add-to-list 'exec-path git-shell-path)
-  (setenv "PATH" (concat git-shell-path ";" (getenv "PATH"))))
+;; (defun udf-windows-setup () (interactive)
+;;   ;; The variable `git-shell-path' contains the path to the `Git\bin'
+;;   (setq git-shell-path ("C:\\Program Files\\Git\\bin"))
+;;   (setq git-shell-executable (concat git-shell-path "\\bash.exe"))
+;;   (add-to-list 'exec-path git-shell-path)
+;;   (setenv "PATH" (concat git-shell-path ";" (getenv "PATH"))))
 
-(if (eq system-type 'windows-nt)
-    (udf-windows-setup))
+;; (if (eq system-type 'windows-nt)
+;;     (udf-windows-setup))
 
 
 (provide 'init)
