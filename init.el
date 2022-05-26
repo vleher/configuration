@@ -52,6 +52,7 @@
 (setq ring-bell-function 'ignore)
 (setq initial-scratch-message nil)
 (setq sentence-end-double-space nil)
+(put 'scroll-left 'disabled nil)
 
 ;; set everything to UTF8
 (set-charset-priority 'unicode)
@@ -61,6 +62,9 @@
 (set-selection-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
 (setq default-process-coding-system '(utf-8-unix . utf-8-unix))
+
+;; Increase the maximum for eval depth
+(setq max-lisp-eval-depth 10000)
 
 ;; Move to first whitespace or begninning of line if none. Pressing again goes to the beginning if
 ;; there was whitespace.
@@ -222,23 +226,25 @@
  ;;   :defer t)
 
  ;; (setq org2blog/wp-show-post-in-browser t)
- (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
-  '(custom-safe-themes
-    '("0710b0bdd59c8a7aacf0640591b38fcad5978a0fcfff3fdd999e63499ada8e3e" "dbade2e946597b9cda3e61978b5fcc14fa3afa2d3c4391d477bdaeff8f5638c5" "801a567c87755fe65d0484cb2bded31a4c5bb24fd1fe0ed11e6c02254017acb2" "6bffac6f528e43839861be1d7facf8054b57edc1ffc70f7be885da7d181ecbac" "37768a79b479684b0756dec7c0fc7652082910c37d8863c35b702db3f16000f8" "549ccbd11c125a4e671a1e8d3609063a91228e918ffb269e57bd2cd2c0a6f1c6" default))
-  '(fido-mode t)
-  '(package-selected-packages
-    '(company-fuzzy company-org-block company-php treemacs-all-the-icons treemacs-icons-dired treemacs-magit marginalia prescient orderless lsp-java lsp-ui hydra lsp-mode projectile company-flx company-box company markdown-mode php-mode json-mode selectrum-prescient selectrum maven-test-mode javadoc-lookup mvn helm-lsp yasnippet-snippets yasnippet flycheck nordless-theme csv-mode magithub tao-theme dracula-theme git-gutter org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
-  '(size-indication-mode t))
- (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
-  )
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("0710b0bdd59c8a7aacf0640591b38fcad5978a0fcfff3fdd999e63499ada8e3e" "dbade2e946597b9cda3e61978b5fcc14fa3afa2d3c4391d477bdaeff8f5638c5" "801a567c87755fe65d0484cb2bded31a4c5bb24fd1fe0ed11e6c02254017acb2" "6bffac6f528e43839861be1d7facf8054b57edc1ffc70f7be885da7d181ecbac" "37768a79b479684b0756dec7c0fc7652082910c37d8863c35b702db3f16000f8" "549ccbd11c125a4e671a1e8d3609063a91228e918ffb269e57bd2cd2c0a6f1c6" default))
+ '(fido-mode t)
+ '(package-selected-packages
+   '(git-gutter-fringe company-fuzzy company-org-block company-php treemacs-all-the-icons treemacs-icons-dired treemacs-magit marginalia prescient orderless lsp-java lsp-ui hydra lsp-mode projectile company-flx company-box company markdown-mode php-mode json-mode selectrum-prescient selectrum maven-test-mode javadoc-lookup mvn helm-lsp yasnippet-snippets yasnippet flycheck nordless-theme csv-mode magithub tao-theme dracula-theme git-gutter org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
+ '(size-indication-mode t))
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
 
  ;;Aggressive indent mode
  ;;(use-package aggressive-indent :ensure t)
@@ -274,10 +280,18 @@
  (use-package magit
    :bind ("C-x g" . magit-status))
 
- (use-package git-gutter
-   :config
+(use-package git-gutter
+  :hook (prog-mode . git-gutter-mode)
+  :config
+  (setq git-gutter:update-interval 0.05)
    (global-git-gutter-mode 't))
- (put 'scroll-left 'disabled nil)
+
+(use-package git-gutter-fringe
+  :config
+  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
+
 
  ;; Java specific configuration
  (add-hook 'java-mode-hook #'lsp)
