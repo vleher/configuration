@@ -115,16 +115,15 @@
 (add-hook 'before-save-hook 'whitespace-cleanup)
 
 (cond
-   ((find-font (font-spec :name "DejaVu Sans"))
-   (set-face-attribute 'default nil :font "DejaVu Sans-10.0"))
-  ((find-font (font-spec :name "Noto Sans"))
-   (set-face-attribute 'default nil :font "Noto Sans-10.0"))
-  ((find-font (font-spec :name "Calibria"))
-   (set-face-attribute 'default nil :font "Calibria-12"))
-  )
+ ((find-font (font-spec :name "DejaVu Sans"))
+  (set-face-attribute 'default nil :font "DejaVu Sans-10.0"))
+ ((find-font (font-spec :name "Noto Sans"))
+  (set-face-attribute 'default nil :font "Noto Sans-10.0"))
+ ((find-font (font-spec :name "Calibria"))
+  (set-face-attribute 'default nil :font "Calibria-12")))
 
 ;; Making it easier to discover Emacs key presses.
- (use-package which-key
+(use-package which-key
   :diminish
   :defer 5
   :config (which-key-mode)
@@ -169,354 +168,353 @@
 (size-indication-mode 1)
 (global-visual-line-mode 1)
 (global-hl-line-mode 1)
-(show-paren-mode
+(show-paren-mode 1)
 
-(recentf-mode 1)
-(setq recentf-max-saved-items 50)
+ (recentf-mode 1)
+ (setq recentf-max-saved-items 50)
 
-;; Fido mode and configuration
-(fido-mode t)
+ ;; Fido mode and configuration
+ (fido-mode t)
 
-;;Easy kill setup and configuration
-(use-package easy-kill
-  :ensure t
-  :config
-  (global-set-key [remap kill-ring-save] #'easy-kill)
-  (global-set-key [remap mark-sexp] #'easy-mark))
+ ;;Easy kill setup and configuration
+ (use-package easy-kill
+   :ensure t
+   :config
+   (global-set-key [remap kill-ring-save] #'easy-kill)
+   (global-set-key [remap mark-sexp] #'easy-mark))
 
-(put 'erase-buffer 'disabled nil)
+ (put 'erase-buffer 'disabled nil)
 
-;;Adding flyspell for spell checking.
-;; (use-package flyspell
-;;   :ensure t
-;;   :defer t
-;;   :init
-;;   (progn
-;;     (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-;;     (add-hook 'text-mode-hook 'flyspell-mode)
-;;     (add-hook 'emacs-lisp-mode-hook 'flyspell-mode)
-;;     (add-hook 'lisp-interaction-mode-hook 'flyspell-mode)
-;;     )
-;;   :config
-;;   ;; Sets flyspell correction to use two-finger mouse click
-;;   (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
-;;   )
+ ;;Adding flyspell for spell checking.
+ ;; (use-package flyspell
+ ;;   :ensure t
+ ;;   :defer t
+ ;;   :init
+ ;;   (progn
+ ;;     (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+ ;;     (add-hook 'text-mode-hook 'flyspell-mode)
+ ;;     (add-hook 'emacs-lisp-mode-hook 'flyspell-mode)
+ ;;     (add-hook 'lisp-interaction-mode-hook 'flyspell-mode)
+ ;;     )
+ ;;   :config
+ ;;   ;; Sets flyspell correction to use two-finger mouse click
+ ;;   (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
+ ;;   )
 
-;; Whitespace configuration
-(use-package whitespace
-  :ensure t
-  :diminish whitespace-mode
-  :init
-  (add-hook 'prog-mode-hook 'whitespace-mode))
+ ;; Whitespace configuration
+ (use-package whitespace
+   :ensure t
+   :diminish whitespace-mode
+   :init
+   (add-hook 'prog-mode-hook 'whitespace-mode))
 
-;; Theme configuration
-(add-to-list 'custom-theme-load-path (expand-file-name --themes-dir))
-(load-theme 'nord t)
-(setq nord-region-highlight "frost")
+ ;; Theme configuration
+ (add-to-list 'custom-theme-load-path (expand-file-name --themes-dir))
+ (load-theme 'nord t)
+ (setq nord-region-highlight "frost")
 
-;; Org2Blog configuration
-;; (use-package xml-rpc
-;;   :ensure t
-;;   :defer t)
-;; (use-package netrc
-;;   :ensure t
-;;   :defer t)
+ ;; Org2Blog configuration
+ ;; (use-package xml-rpc
+ ;;   :ensure t
+ ;;   :defer t)
+ ;; (use-package netrc
+ ;;   :ensure t
+ ;;   :defer t)
 
-;; (setq org2blog/wp-show-post-in-browser t)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("0710b0bdd59c8a7aacf0640591b38fcad5978a0fcfff3fdd999e63499ada8e3e" "dbade2e946597b9cda3e61978b5fcc14fa3afa2d3c4391d477bdaeff8f5638c5" "801a567c87755fe65d0484cb2bded31a4c5bb24fd1fe0ed11e6c02254017acb2" "6bffac6f528e43839861be1d7facf8054b57edc1ffc70f7be885da7d181ecbac" "37768a79b479684b0756dec7c0fc7652082910c37d8863c35b702db3f16000f8" "549ccbd11c125a4e671a1e8d3609063a91228e918ffb269e57bd2cd2c0a6f1c6" default))
- '(fido-mode t)
- '(package-selected-packages
-   '(company-fuzzy company-org-block company-php treemacs-all-the-icons treemacs-icons-dired treemacs-magit marginalia prescient orderless lsp-java lsp-ui hydra lsp-mode projectile company-flx company-box company markdown-mode php-mode json-mode selectrum-prescient selectrum maven-test-mode javadoc-lookup mvn helm-lsp yasnippet-snippets yasnippet flycheck nordless-theme csv-mode magithub tao-theme dracula-theme git-gutter org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
- '(size-indication-mode t))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-
-;;Aggressive indent mode
-;;(use-package aggressive-indent :ensure t)
-
-;; Window switching configuration ;; Ace Window
-(use-package ace-window
-  :ensure t
-  :config
-  (global-set-key (kbd "<C-tab>") 'ace-window)
-  (setq aw-keys '(?e ?t ?a ?h ?i ?s ?w ?n ?p ?c)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Custom splitting functions ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun vsplit-last-buffer ()
-  (interactive)
-  (split-window-vertically)
-  (other-window 1 nil)
-  (switch-to-next-buffer)
+ ;; (setq org2blog/wp-show-post-in-browser t)
+ (custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+  '(custom-safe-themes
+    '("0710b0bdd59c8a7aacf0640591b38fcad5978a0fcfff3fdd999e63499ada8e3e" "dbade2e946597b9cda3e61978b5fcc14fa3afa2d3c4391d477bdaeff8f5638c5" "801a567c87755fe65d0484cb2bded31a4c5bb24fd1fe0ed11e6c02254017acb2" "6bffac6f528e43839861be1d7facf8054b57edc1ffc70f7be885da7d181ecbac" "37768a79b479684b0756dec7c0fc7652082910c37d8863c35b702db3f16000f8" "549ccbd11c125a4e671a1e8d3609063a91228e918ffb269e57bd2cd2c0a6f1c6" default))
+  '(fido-mode t)
+  '(package-selected-packages
+    '(company-fuzzy company-org-block company-php treemacs-all-the-icons treemacs-icons-dired treemacs-magit marginalia prescient orderless lsp-java lsp-ui hydra lsp-mode projectile company-flx company-box company markdown-mode php-mode json-mode selectrum-prescient selectrum maven-test-mode javadoc-lookup mvn helm-lsp yasnippet-snippets yasnippet flycheck nordless-theme csv-mode magithub tao-theme dracula-theme git-gutter org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
+  '(size-indication-mode t))
+ (custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
   )
-(defun hsplit-last-buffer ()
-  (interactive)
+
+ ;;Aggressive indent mode
+ ;;(use-package aggressive-indent :ensure t)
+
+ ;; Window switching configuration ;; Ace Window
+ (use-package ace-window
+   :ensure t
+   :config
+   (global-set-key (kbd "<C-tab>") 'ace-window)
+   (setq aw-keys '(?e ?t ?a ?h ?i ?s ?w ?n ?p ?c)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;; Custom splitting functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ (defun vsplit-last-buffer ()
+   (interactive)
+   (split-window-vertically)
+   (other-window 1 nil)
+   (switch-to-next-buffer)
+   )
+ (defun hsplit-last-buffer ()
+   (interactive)
    (split-window-horizontally)
-  (other-window 1 nil)
-  (switch-to-next-buffer)
-  )
+   (other-window 1 nil)
+   (switch-to-next-buffer)
+   )
 
-(global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
-(global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
+ (global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
+ (global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
 
-;; Magit configuration
-(use-package magit
-  :bind ("C-x g" . magit-status))
+ ;; Magit configuration
+ (use-package magit
+   :bind ("C-x g" . magit-status))
 
-(use-package git-gutter
-  :config
-  (global-git-gutter-mode 't))
-(put 'scroll-left 'disabled nil)
+ (use-package git-gutter
+   :config
+   (global-git-gutter-mode 't))
+ (put 'scroll-left 'disabled nil)
 
-;; Java specific configuration
-(add-hook 'java-mode-hook #'lsp)
-(add-hook 'java-mode-hook 'flycheck-mode)
-(add-hook 'java-mode-hook 'company-mode)
-(add-hook 'after-init-hook 'global-company-mode)
+ ;; Java specific configuration
+ (add-hook 'java-mode-hook #'lsp)
+ (add-hook 'java-mode-hook 'flycheck-mode)
+ (add-hook 'java-mode-hook 'company-mode)
+ (add-hook 'after-init-hook 'global-company-mode)
 
-;; Show all documestation
-(setq lsp-eldoc-render-all t)
+ ;; Show all documestation
+ (setq lsp-eldoc-render-all t)
 
 ;;; Json ;;;;
+ (use-package json-mode
+   :mode ("\\.json$" . json-mode))
 
-(use-package json-mode
-  :mode ("\\.json$" . json-mode))
+ ;; PHP
+ (use-package php-mode)
 
-;; PHP
-(use-package php-mode)
+ ;; CSS
+ (require 'css-mode)
+ (setq-default css-indent-offset 4)
 
-;; CSS
-(require 'css-mode)
-(setq-default css-indent-offset 4)
+ (setq auto-mode-alist
+       (append '(("\\.min.css$" . fundamental-mode) ;; Faster to load.
+                 ("\\.css$" . css-mode)
+                 ("\\.style$" . css-mode))
+               auto-mode-alist))
+ ;; Markdown
+ (use-package markdown-mode
+   :mode (("\\.markdown\\'" . markdown-mode)
+          ("\\.md\\'" . markdown-mode))
+   :config
+   ;; Turn off auto-fill-mode beacuse markdown is sensitive about newlines.
+   (add-hook 'markdown-mode-hook
+             (lambda ()
+               (auto-fill-mode 0)
+               (visual-line-mode t))))
 
-(setq auto-mode-alist
-      (append '(("\\.min.css$" . fundamental-mode) ;; Faster to load.
-                ("\\.css$" . css-mode)
-                ("\\.style$" . css-mode))
-              auto-mode-alist))
-;; Markdown
-(use-package markdown-mode
-  :mode (("\\.markdown\\'" . markdown-mode)
-         ("\\.md\\'" . markdown-mode))
-  :config
-  ;; Turn off auto-fill-mode beacuse markdown is sensitive about newlines.
-  (add-hook 'markdown-mode-hook
-            (lambda ()
-              (auto-fill-mode 0)
-              (visual-line-mode t))))
-
-;; Python
-(require 'python)
-(setq python-indent-offset 2)
+ ;; Python
+ (require 'python)
+ (setq python-indent-offset 2)
 
 ;;;; Company ;;;;
-(use-package company
-  :config
-  (setq company-idle-delay 0.3
-        company-minimum-prefix-length 1
-        company-require-match nil
-        company-selection-wrap-around t
-        company-tooltip-align-annotations t)
-  (global-company-mode 1)
-  (global-set-key (kbd "C-,") 'company-complete))
+ (use-package company
+   :config
+   (setq company-idle-delay 0.3
+         company-minimum-prefix-length 1
+         company-require-match nil
+         company-selection-wrap-around t
+         company-tooltip-align-annotations t)
+   (global-company-mode 1)
+   (global-set-key (kbd "C-,") 'company-complete))
 
-(setq company-dabbrev-ignore-case t)
-(setq company-dabbrev-downcase nil)
+ (setq company-dabbrev-ignore-case t)
+ (setq company-dabbrev-downcase nil)
 
-;; Show icons in company completion UI.
-(use-package company-box
-  :config
-  (if (display-graphic-p)
-      ;; Show font icons in windowed mode.
-      (setq company-box-icons-alist 'company-box-icons-all-the-icons
-            company-box-color-icon t)
-    ;; Show compatible icons in terminal.
-    (setq company-box-icons-alist 'company-box-icons-icons-in-terminal))
-  :hook (company-mode . company-box-mode))
+ ;; Show icons in company completion UI.
+ (use-package company-box
+   :config
+   (if (display-graphic-p)
+       ;; Show font icons in windowed mode.
+       (setq company-box-icons-alist 'company-box-icons-all-the-icons
+             company-box-color-icon t)
+     ;; Show compatible icons in terminal.
+     (setq company-box-icons-alist 'company-box-icons-icons-in-terminal))
+   :hook (company-mode . company-box-mode))
 
-(use-package company-flx
-  :requires company
-  :config
-  (company-flx-mode +1))
+ (use-package company-flx
+   :requires company
+   :config
+   (company-flx-mode +1))
 
 ;;;; Projectile ;;;;;
-(use-package projectile
-  :ensure t
-  :config
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (projectile-mode +1))
-(setq projectile-indexing-method 'alien)
+ (use-package projectile
+   :ensure t
+   :config
+   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+   (projectile-mode +1))
+ (setq projectile-indexing-method 'alien)
 
-(use-package flycheck :ensure t :init (global-flycheck-mode))
+ (use-package flycheck :ensure t :init (global-flycheck-mode))
 
-;; yasnippet configuration
-(use-package yasnippet :config (yas-global-mode))
-(use-package yasnippet-snippets :ensure t)
+ ;; yasnippet configuration
+ (use-package yasnippet :config (yas-global-mode))
+ (use-package yasnippet-snippets :ensure t)
 
-;; lsp mode
-(use-package lsp-mode
-  :ensure t
-  :hook (
-         (lsp-mode . lsp-enable-which-key-integration)
-         (java-mode . #'lsp-deferred)
-         )
-  :init (setq
-         lsp-keymap-prefix "C-c l"              ; this is for which-key integration documentation, need to use lsp-mode-map
-         lsp-enable-file-watchers nil
-         read-process-output-max (* 1024 1024)  ; 1 mb
-         lsp-completion-provider :capf
-         lsp-idle-delay 0.500
-         )
-  :config
-  (setq lsp-intelephense-multi-root nil) ; don't scan unnecessary projects
-  (setq lsp-completion-enable-additional-text-edit nil)
-  (with-eval-after-load 'lsp-intelephense
-    (setf (lsp--client-multi-root (gethash 'iph lsp-clients)) nil))
-  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
-  )
-(use-package hydra)
-(use-package lsp-ui
-  :ensure t
-  :after (lsp-mode)
-  :bind (:map lsp-ui-mode-map
-              ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
-              ([remap xref-find-references] . lsp-ui-peek-find-references))
-  :init (setq lsp-ui-doc-delay 1.5
-              lsp-ui-doc-position 'bottom
-	      lsp-ui-doc-max-width 100
-              ))
+ ;; lsp mode
+ (use-package lsp-mode
+   :ensure t
+   :hook (
+          (lsp-mode . lsp-enable-which-key-integration)
+          (java-mode . #'lsp-deferred)
+          )
+   :init (setq
+          lsp-keymap-prefix "C-c l"              ; this is for which-key integration documentation, need to use lsp-mode-map
+          lsp-enable-file-watchers nil
+          read-process-output-max (* 1024 1024)  ; 1 mb
+          lsp-completion-provider :capf
+          lsp-idle-delay 0.500
+          )
+   :config
+   (setq lsp-intelephense-multi-root nil) ; don't scan unnecessary projects
+   (setq lsp-completion-enable-additional-text-edit nil)
+   (with-eval-after-load 'lsp-intelephense
+     (setf (lsp--client-multi-root (gethash 'iph lsp-clients)) nil))
+   (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
+   )
+ (use-package hydra)
+ (use-package lsp-ui
+   :ensure t
+   :after (lsp-mode)
+   :bind (:map lsp-ui-mode-map
+               ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+               ([remap xref-find-references] . lsp-ui-peek-find-references))
+   :init (setq lsp-ui-doc-delay 1.5
+               lsp-ui-doc-position 'bottom
+	       lsp-ui-doc-max-width 100
+               ))
 
-(use-package lsp-java :ensure t :config (add-hook 'java-mode-hook 'lsp))
+ (use-package lsp-java :ensure t :config (add-hook 'java-mode-hook 'lsp))
 
-;; DAP mode for debugging
-(use-package dap-mode
-  :ensure t
-  :after (lsp-mode)
-  :functions dap-hydra/nil
-  :config
-  (require 'dap-java)
-  :bind (:map lsp-mode-map
-              ("<f5>" . dap-debug)
-              ("M-<f5>" . dap-hydra))
-  :hook ((dap-mode . dap-ui-mode)
-         (dap-session-created . (lambda (&_rest) (dap-hydra)))
-         (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))))
-(use-package dap-java :ensure nil)
+ ;; DAP mode for debugging
+ (use-package dap-mode
+   :ensure t
+   :after (lsp-mode)
+   :functions dap-hydra/nil
+   :config
+   (require 'dap-java)
+   :bind (:map lsp-mode-map
+               ("<f5>" . dap-debug)
+               ("M-<f5>" . dap-hydra))
+   :hook ((dap-mode . dap-ui-mode)
+          (dap-session-created . (lambda (&_rest) (dap-hydra)))
+          (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))))
+ (use-package dap-java :ensure nil)
 
 ;;;;; Selectrum ;;;;;
-(use-package orderless
-  :config
-  (setq completion-styles '(orderless)))
+ (use-package orderless
+   :config
+   (setq completion-styles '(orderless)))
 
-(use-package prescient
-  :config
-  (setq prescient-save-file (concat user-emacs-directory "prescient-save"))
-  (prescient-persist-mode +1))
+ (use-package prescient
+   :config
+   (setq prescient-save-file (concat user-emacs-directory "prescient-save"))
+   (prescient-persist-mode +1))
 
-(use-package marginalia
-  :config
-  (marginalia-mode +1))
+ (use-package marginalia
+   :config
+   (marginalia-mode +1))
 
-(use-package selectrum
-  :requires orderless
-  :config
-  (setq selectrum-refine-candidates-function #'orderless-filter
-        selectrum-highlight-candidates-function #'orderless-highlight-matches
-        selectrum-count-style 'current/matches
-        selectrum-max-window-height 15)
-  (selectrum-mode +1))
+ (use-package selectrum
+   :requires orderless
+   :config
+   (setq selectrum-refine-candidates-function #'orderless-filter
+         selectrum-highlight-candidates-function #'orderless-highlight-matches
+         selectrum-count-style 'current/matches
+         selectrum-max-window-height 15)
+   (selectrum-mode +1))
 
-(use-package selectrum-prescient
-  :requires selectrum prescient
-  :config
-  ;; Use filtring from only `completion-styles' and not selectrum.
-  (setq selectrum-prescient-enable-filtering nil)
+ (use-package selectrum-prescient
+   :requires selectrum prescient
+   :config
+   ;; Use filtring from only `completion-styles' and not selectrum.
+   (setq selectrum-prescient-enable-filtering nil)
 
-  ;; But enable frequency and recency ordering from selectrum.
-  (selectrum-prescient-mode +1))
+   ;; But enable frequency and recency ordering from selectrum.
+   (selectrum-prescient-mode +1))
 
 ;;;;; Hydra ;;;;;
-(use-package hydra
-  :config
-  ;; Easier cycling of yanking.
-  (defhydra yank-pop-hydra ()
-    "yank"
-    ("C-y" yank nil)
-    ("M-y" yank-pop nil)
-    ("y" (yank-pop 1) "next")
-    ("Y" (yank-pop -1) "prev"))
+ (use-package hydra
+   :config
+   ;; Easier cycling of yanking.
+   (defhydra yank-pop-hydra ()
+     "yank"
+     ("C-y" yank nil)
+     ("M-y" yank-pop nil)
+     ("y" (yank-pop 1) "next")
+     ("Y" (yank-pop -1) "prev"))
 
-  (global-set-key (kbd "M-y") #'yank-pop-hydra/yank-pop)
-  (global-set-key (kbd "C-y") #'yank-pop-hydra/yank)
+   (global-set-key (kbd "M-y") #'yank-pop-hydra/yank-pop)
+   (global-set-key (kbd "C-y") #'yank-pop-hydra/yank)
 
-  (defhydra compilation-hydra (:columns 4)
-    ("c" compile "Compile")
-    ("C" compile-from-buffer-folder "Compile from buffer folder")
-    ("r" recompile "Recompile")
-    ("k" netrom/kill-compilation "Stop")
-    ("n" next-error "Next error")
-    ("N" next-error-skip-warnings "Next error, skip warnings")
-    ("p" previous-error "Previous error")
-    ("f" first-error "First error")
-    ("l" netrom/compilation-last-error "Last error")
-    ("s" netrom/compilation-toggle-scroll "Toggle scroll")
-    ("t" netrom/compilation-toggle-threshold "Toggle threshold")
-    ("q" nil "Cancel" :color blue))
+   (defhydra compilation-hydra (:columns 4)
+     ("c" compile "Compile")
+     ("C" compile-from-buffer-folder "Compile from buffer folder")
+     ("r" recompile "Recompile")
+     ("k" netrom/kill-compilation "Stop")
+     ("n" next-error "Next error")
+     ("N" next-error-skip-warnings "Next error, skip warnings")
+     ("p" previous-error "Previous error")
+     ("f" first-error "First error")
+     ("l" netrom/compilation-last-error "Last error")
+     ("s" netrom/compilation-toggle-scroll "Toggle scroll")
+     ("t" netrom/compilation-toggle-threshold "Toggle threshold")
+     ("q" nil "Cancel" :color blue))
 
-  (global-set-key [(f5)] 'compilation-hydra/body)
+   (global-set-key [(f5)] 'compilation-hydra/body)
 
-  ;; Define hydra for programming modes.
-  (add-hook 'prog-mode-hook
-            (lambda ()
-              ;; Using local-set-key because defining the bindings in prog-mode-map will get
-              ;; overridden by c++-mode bindings, for instance. This shadows them instead.
-              (when (member major-mode '(c++-mode c-mode))
-                (local-set-key (kbd "C-c C-c") 'compilation-hydra/body)))))
-
-
-;;treemacs
-(use-package lsp-treemacs
-  :after (lsp-mode treemacs)
-  :ensure t
-  :commands lsp-treemacs-errors-list
-  :bind (:map lsp-mode-map
-              ("M-9" . lsp-treemacs-errors-list)))
-
-(use-package treemacs
-  :ensure t
-  :commands (treemacs)
-  :after (lsp-mode))
-
-;; Automatically add ending brackets and braces
-(electric-pair-mode 1)
-
-(when (eq system-type 'windows-nt)
-  (setenv "JAVA_HOME" "~/.jdks/openjdk-17.0.1")
-  (setq lsp-java-java-path "~/.jdks/openjdk-17.0.1/bin/java"))
-
-;; Set Windows-specific preferences if running in a Windows environment.
-;; (defun udf-windows-setup () (interactive)
-;;   ;; The variable `git-shell-path' contains the path to the `Git\bin'
-;;   (setq git-shell-path ("C:\\Program Files\\Git\\bin"))
-;;   (setq git-shell-executable (concat git-shell-path "\\bash.exe"))
-;;   (add-to-list 'exec-path git-shell-path)
-;;   (setenv "PATH" (concat git-shell-path ";" (getenv "PATH"))))
-
-;; (if (eq system-type 'windows-nt)
-;;     (udf-windows-setup))
+   ;; Define hydra for programming modes.
+   (add-hook 'prog-mode-hook
+             (lambda ()
+               ;; Using local-set-key because defining the bindings in prog-mode-map will get
+               ;; overridden by c++-mode bindings, for instance. This shadows them instead.
+               (when (member major-mode '(c++-mode c-mode))
+                 (local-set-key (kbd "C-c C-c") 'compilation-hydra/body)))))
 
 
-(provide 'init)
+ ;;treemacs
+ (use-package lsp-treemacs
+   :after (lsp-mode treemacs)
+   :ensure t
+   :commands lsp-treemacs-errors-list
+   :bind (:map lsp-mode-map
+               ("M-9" . lsp-treemacs-errors-list)))
+
+ (use-package treemacs
+   :ensure t
+   :commands (treemacs)
+   :after (lsp-mode))
+
+ ;; Automatically add ending brackets and braces
+ (electric-pair-mode 1)
+
+ (when (eq system-type 'windows-nt)
+   (setenv "JAVA_HOME" "~/.jdks/openjdk-17.0.1")
+   (setq lsp-java-java-path "~/.jdks/openjdk-17.0.1/bin/java"))
+
+ ;; Set Windows-specific preferences if running in a Windows environment.
+ ;; (defun udf-windows-setup () (interactive)
+ ;;   ;; The variable `git-shell-path' contains the path to the `Git\bin'
+ ;;   (setq git-shell-path ("C:\\Program Files\\Git\\bin"))
+ ;;   (setq git-shell-executable (concat git-shell-path "\\bash.exe"))
+ ;;   (add-to-list 'exec-path git-shell-path)
+ ;;   (setenv "PATH" (concat git-shell-path ";" (getenv "PATH"))))
+
+ ;; (if (eq system-type 'windows-nt)
+ ;;     (udf-windows-setup))
+
+
+ (provide 'init)
 ;;; init.el ends here
