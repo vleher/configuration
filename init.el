@@ -148,7 +148,7 @@
   (set-face-attribute 'default nil :font "DejaVu Sans-10.0"))
  ((find-font (font-spec :name "Noto Sans"))
   (set-face-attribute 'default nil :font "Noto Sans-10.0"))
- ((find-font (font-spec :name "Calibri-12"))
+ ((find-font (font-spec :name "Calibri"))
   (progn
     (set-face-attribute 'default nil :font "Calibri-12")
     (set-face-attribute 'mode-line nil :font "Calibri-9"))))
