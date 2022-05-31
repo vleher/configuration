@@ -150,7 +150,7 @@
   (set-face-attribute 'default nil :font "Noto Sans-10.0"))
  ((find-font (font-spec :name "Calibri-12"))
   (progn
-    (set-face-attribute 'default nil :font "Calibria-12")
+    (set-face-attribute 'default nil :font "Calibri-12")
     (set-face-attribute 'mode-line nil :font "Calibri-9"))))
 
 ;; Try to fix the mode line
