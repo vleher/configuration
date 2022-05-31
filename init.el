@@ -186,6 +186,9 @@
 
 (use-package htmlize :defer t)
 
+;; Crux Configuration
+(use-package crux)
+
 (use-package tramp)
 (setq tramp-default-method "ssh")
 (setq tramp-verbose 1)
