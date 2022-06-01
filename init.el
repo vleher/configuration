@@ -121,7 +121,18 @@
 
 ;; See if we can maximize by default
 (custom-set-variables
- '(initial-frame-alist (quote ((fullscreen . maximized)))))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("0710b0bdd59c8a7aacf0640591b38fcad5978a0fcfff3fdd999e63499ada8e3e" "dbade2e946597b9cda3e61978b5fcc14fa3afa2d3c4391d477bdaeff8f5638c5" "801a567c87755fe65d0484cb2bded31a4c5bb24fd1fe0ed11e6c02254017acb2" "6bffac6f528e43839861be1d7facf8054b57edc1ffc70f7be885da7d181ecbac" "37768a79b479684b0756dec7c0fc7652082910c37d8863c35b702db3f16000f8" "549ccbd11c125a4e671a1e8d3609063a91228e918ffb269e57bd2cd2c0a6f1c6" default))
+ '(fido-mode t)
+ '(initial-frame-alist '((fullscreen . maximized)))
+ '(org-agenda-files nil nil nil "Customized with use-package org")
+ '(package-selected-packages
+   '(embark-consult embark consult crux diff-hl magit-libgit libgit multiple-cursors org-alert org-modern rainbow-delimiters mood-line diminish company-fuzzy company-org-block company-php treemacs-all-the-icons treemacs-icons-dired treemacs-magit marginalia prescient orderless lsp-java lsp-ui hydra lsp-mode projectile company-flx company-box company markdown-mode php-mode json-mode selectrum-prescient selectrum maven-test-mode javadoc-lookup mvn helm-lsp yasnippet-snippets yasnippet flycheck nordless-theme csv-mode magithub tao-theme dracula-theme org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
+ '(size-indication-mode t))
 
 ;; Put backup files neatly away
 (let ((backup-dir "~/emacs.d/backups")
@@ -155,7 +166,7 @@
 
 ;; Try to fix the mode line
 (use-package diminish :config (diminish 'visual-line-mode))
-(use-package mood-line :config (mood-line-mode))
+;;(use-package mood-line :config (mood-line-mode))
 
 ;; Making it easier to discover Emacs key presses.
 (use-package which-key
@@ -272,6 +283,8 @@
   :init
   (add-hook 'prog-mode-hook 'whitespace-mode))
 
+(use-package eldoc :diminish :config (global-eldoc-mode))
+
 ;; Theme configuration
 (add-to-list 'custom-theme-load-path (expand-file-name --themes-dir))
 (load-theme 'nord t)
@@ -284,19 +297,6 @@
 
 ;; (setq org2blog/wp-show-post-in-browser t)
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("0710b0bdd59c8a7aacf0640591b38fcad5978a0fcfff3fdd999e63499ada8e3e" "dbade2e946597b9cda3e61978b5fcc14fa3afa2d3c4391d477bdaeff8f5638c5" "801a567c87755fe65d0484cb2bded31a4c5bb24fd1fe0ed11e6c02254017acb2" "6bffac6f528e43839861be1d7facf8054b57edc1ffc70f7be885da7d181ecbac" "37768a79b479684b0756dec7c0fc7652082910c37d8863c35b702db3f16000f8" "549ccbd11c125a4e671a1e8d3609063a91228e918ffb269e57bd2cd2c0a6f1c6" default))
- '(fido-mode t)
- '(org-agenda-files nil nil nil "Customized with use-package org")
- '(package-selected-packages
-   '(diff-hl magit-libgit libgit multiple-cursors org-alert org-modern rainbow-delimiters mood-line diminish git-gutter-fringe company-fuzzy company-org-block company-php treemacs-all-the-icons treemacs-icons-dired treemacs-magit marginalia prescient orderless lsp-java lsp-ui hydra lsp-mode projectile company-flx company-box company markdown-mode php-mode json-mode selectrum-prescient selectrum maven-test-mode javadoc-lookup mvn helm-lsp yasnippet-snippets yasnippet flycheck nordless-theme csv-mode magithub tao-theme dracula-theme git-gutter org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
- '(size-indication-mode t))
-
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -306,6 +306,7 @@
 
 ;;Aggressive indent mode
 (use-package aggressive-indent
+  :diminish
   :hook
   (c-mode . aggressive-indent-mode)
   (emacs-lisp-mode . aggressive-indent-mode)
@@ -408,6 +409,7 @@
 
 ;;;; Company ;;;;
 (use-package company
+  :diminish
   :config
   (setq company-idle-delay 0.3
 	company-minimum-prefix-length 1
@@ -419,6 +421,7 @@
 
 ;; Show icons in company completion UI.
 (use-package company-box
+  :diminish
   :config
   (if (display-graphic-p)
       ;; Show font icons in windowed mode.
@@ -430,6 +433,7 @@
 
 (use-package company-flx
   :requires company
+  :diminish
   :config
   (company-flx-mode +1))
 
@@ -443,8 +447,8 @@
 (use-package flycheck :init (global-flycheck-mode))
 
 ;; yasnippet configuration
-(use-package yasnippet :config (yas-global-mode) :custom (yas-prompt-functions '(yas-completing-prompt)))
-(use-package yasnippet-snippets )
+(use-package yasnippet :diminish :config (yas-global-mode) :custom (yas-prompt-functions '(yas-completing-prompt)))
+(use-package yasnippet-snippets :diminish)
 
 ;; lsp mode
 (use-package lsp-mode
