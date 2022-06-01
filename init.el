@@ -131,7 +131,7 @@
  '(initial-frame-alist '((fullscreen . maximized)))
  '(org-agenda-files nil nil nil "Customized with use-package org")
  '(package-selected-packages
-   '(embark-consult embark consult crux diff-hl magit-libgit libgit multiple-cursors org-alert org-modern rainbow-delimiters mood-line diminish company-fuzzy company-org-block company-php treemacs-all-the-icons treemacs-icons-dired treemacs-magit marginalia prescient orderless lsp-java lsp-ui hydra lsp-mode projectile company-flx company-box company markdown-mode php-mode json-mode selectrum-prescient selectrum maven-test-mode javadoc-lookup mvn helm-lsp yasnippet-snippets yasnippet flycheck nordless-theme csv-mode magithub tao-theme dracula-theme org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
+   '(rg ripgrep embark-consult embark consult crux diff-hl magit-libgit libgit multiple-cursors org-alert org-modern rainbow-delimiters mood-line diminish company-fuzzy company-org-block company-php treemacs-all-the-icons treemacs-icons-dired treemacs-magit marginalia prescient orderless lsp-java lsp-ui hydra lsp-mode projectile company-flx company-box company markdown-mode php-mode json-mode selectrum-prescient selectrum maven-test-mode javadoc-lookup mvn helm-lsp yasnippet-snippets yasnippet flycheck nordless-theme csv-mode magithub tao-theme dracula-theme org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
  '(size-indication-mode t))
 
 ;; Put backup files neatly away
@@ -285,6 +285,9 @@
 
 (use-package eldoc :diminish :config (global-eldoc-mode))
 
+;; RIPgrep and rg
+(use-package ripgrep)
+
 ;; Theme configuration
 (add-to-list 'custom-theme-load-path (expand-file-name --themes-dir))
 (load-theme 'nord t)
@@ -347,11 +350,6 @@
   (defun pt/commit-hook () (set-fill-column 80))
   (add-hook 'git-commit-setup-hook #'pt/commit-hook)
   (add-to-list 'magit-no-confirm 'stage-all-changes))
-
-(use-package libgit :after magit)
-
-(use-package magit-libgit
-  :after (magit libgit))
 
 (use-package diff-hl
   :config
