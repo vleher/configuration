@@ -70,7 +70,7 @@
 (set-keyboard-coding-system 'utf-8)
 (set-selection-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
-(setq default-process-coding-system '(utf-8-unix . utf-8-unix))
+;;(setq default-process-coding-system '(utf-8-unix . utf-8-unix))
 
 ;;set the line number mode to true
 (setq line-number-mode t)
@@ -118,21 +118,6 @@
 (setq scroll-margin 0)
 (setq scroll-conservatively 100000)
 (setq scroll-preserve-screen-position 1)
-
-;; See if we can maximize by default
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("0710b0bdd59c8a7aacf0640591b38fcad5978a0fcfff3fdd999e63499ada8e3e" "dbade2e946597b9cda3e61978b5fcc14fa3afa2d3c4391d477bdaeff8f5638c5" "801a567c87755fe65d0484cb2bded31a4c5bb24fd1fe0ed11e6c02254017acb2" "6bffac6f528e43839861be1d7facf8054b57edc1ffc70f7be885da7d181ecbac" "37768a79b479684b0756dec7c0fc7652082910c37d8863c35b702db3f16000f8" "549ccbd11c125a4e671a1e8d3609063a91228e918ffb269e57bd2cd2c0a6f1c6" default))
- '(fido-mode t)
- '(initial-frame-alist '((fullscreen . maximized)))
- '(org-agenda-files nil nil nil "Customized with use-package org")
- '(package-selected-packages
-   '(rg ripgrep embark-consult embark consult crux diff-hl magit-libgit libgit multiple-cursors org-alert org-modern rainbow-delimiters mood-line diminish company-fuzzy company-org-block company-php treemacs-all-the-icons treemacs-icons-dired treemacs-magit marginalia prescient orderless lsp-java lsp-ui hydra lsp-mode projectile company-flx company-box company markdown-mode php-mode json-mode selectrum-prescient selectrum maven-test-mode javadoc-lookup mvn helm-lsp yasnippet-snippets yasnippet flycheck nordless-theme csv-mode magithub tao-theme dracula-theme org-bullets magit dimmer all-the-icons-dired all-the-icons which-key auto-package-update log4j-mode ace-window aggressive-indent easy-kill use-package org2blog nord-theme))
- '(size-indication-mode t))
 
 ;; Put backup files neatly away
 (let ((backup-dir "~/emacs.d/backups")
@@ -367,11 +352,6 @@
      (unknown . "?")
      (ignored . "i"))))
 
-;; Java specific configuration
-(add-hook 'java-mode-hook #'lsp)
-(add-hook 'java-mode-hook 'flycheck-mode)
-(add-hook 'java-mode-hook 'company-mode)
-(add-hook 'after-init-hook 'global-company-mode)
 
 ;;; Json ;;;;
 (use-package json-mode
@@ -460,14 +440,11 @@
 	 read-process-output-max (* 1024 1024)  ; 1 mb
 	 lsp-idle-delay 0.500
 	 )
-  :config
-  (with-eval-after-load 'lsp-intelephense
-    (setf (lsp--client-multi-root (gethash 'iph lsp-clients)) nil))
-  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
   )
-(use-package hydra)
-(use-package lsp-ui
 
+(use-package hydra)
+
+(use-package lsp-ui
   :after (lsp-mode)
   :bind (:map lsp-ui-mode-map
 	      ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
@@ -481,7 +458,6 @@
 
 ;; DAP mode for debugging
 (use-package dap-mode
-
   :after (lsp-mode)
   :functions dap-hydra/nil
   :config
@@ -550,7 +526,7 @@
 	 ("<help> a" . consult-apropos)            ;; orig. apropos-command
 	 ;; M-g bindings (goto-map)
 	 ("M-g e" . consult-compile-error)
-	 ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+	 ("M-g f" . consult-flycheck)               ;; Alternative: consult-flycheck
 	 ("M-g g" . consult-goto-line)             ;; orig. goto-line
 	 ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
 	 ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
@@ -608,9 +584,9 @@
 
   ;; Optionally configure preview. The default value
   ;; is 'any, such that any key triggers the preview.
-  ;; (setq consult-preview-key 'any)
-  ;; (setq consult-preview-key (kbd "M-."))
-  ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+  (setq consult-preview-key 'any)
+  (setq consult-preview-key (kbd "M-."))
+  (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
   ;; For some commands and buffer sources it is useful to configure the
   ;; :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
@@ -628,7 +604,7 @@
 
   ;; Optionally make narrowing help available in the minibuffer.
   ;; You may want to use `embark-prefix-help-command' or which-key instead.
-  ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
+  (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
 
   ;; By default `consult-project-function' uses `project-root' from project.el.
   ;; Optionally configure a different project root function.
@@ -636,7 +612,7 @@
   ;;;; 1. project.el (the default)
   ;; (setq consult-project-function #'consult--default-project--function)
   ;;;; 2. projectile.el (projectile-project-root)
-  ;; (autoload 'projectile-project-root "projectile")
+  (autoload 'projectile-project-root "projectile")
   ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
   ;;;; 3. vc.el (vc-root-dir)
   ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
@@ -669,74 +645,76 @@
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
-;;;;; Hydra ;;;;;
-;; (use-package hydra
-;;   :config
-;;   ;; Easier cycling of yanking.
-;;   (defhydra yank-pop-hydra ()
-;;     "yank"
-;;     ("C-y" yank nil)
-;;     ("M-y" yank-pop nil)
-;;     ("y" (yank-pop 1) "next")
-;;     ("Y" (yank-pop -1) "prev"))
+;; (defhydra yank-pop-hydra ()
+;;   "yank"
+;;   ("C-y" yank nil)
+;;   ("M-y" yank-pop nil)
+;;   ("y" (yank-pop 1) "next")
+;;   ("Y" (yank-pop -1) "prev"))
 
-;;   (global-set-key (kbd "M-y") #'yank-pop-hydra/yank-pop)
-;;   (global-set-key (kbd "C-y") #'yank-pop-hydra/yank)
+;; (global-set-key (kbd "M-y") #'yank-pop-hydra/yank-pop)
+;; (global-set-key (kbd "C-y") #'yank-pop-hydra/yank)
 
-;;   (defhydra compilation-hydra (:columns 4)
-;;     ("c" compile "Compile")
-;;     ("C" compile-from-buffer-folder "Compile from buffer folder")
-;;     ("r" recompile "Recompile")
-;;     ("k" netrom/kill-compilation "Stop")
-;;     ("n" next-error "Next error")
-;;     ("N" next-error-skip-warnings "Next error, skip warnings")
-;;     ("p" previous-error "Previous error")
-;;     ("f" first-error "First error")
-;;     ("l" netrom/compilation-last-error "Last error")
-;;     ("s" netrom/compilation-toggle-scroll "Toggle scroll")
-;;     ("t" netrom/compilation-toggle-threshold "Toggle threshold")
-;;     ("q" nil "Cancel" :color blue))
+;; (defhydra compilation-hydra (:columns 4)
+;;   ("c" compile "Compile")
+;;   ("C" compile-from-buffer-folder "Compile from buffer folder")
+;;   ("r" recompile "Recompile")
+;;   ("k" netrom/kill-compilation "Stop")
+;;   ("n" next-error "Next error")
+;;   ("N" next-error-skip-warnings "Next error, skip warnings")
+;;   ("p" previous-error "Previous error")
+;;   ("f" first-error "First error")
+;;   ("l" netrom/compilation-last-error "Last error")
+;;   ("s" netrom/compilation-toggle-scroll "Toggle scroll")
+;;   ("t" netrom/compilation-toggle-threshold "Toggle threshold")
+;;   ("q" nil "Cancel" :color blue))
 
-;;   (global-set-key [(f5)] 'compilation-hydra/body)
+;; (global-set-key [(f5)] 'compilation-hydra/body)
 
-;;   ;; Define hydra for programming modes.
-;;   (add-hook 'prog-mode-hook
-;;             (lambda ()
-;;               ;; Using local-set-key because defining the bindings in prog-mode-map will get
-;;               ;; overridden by c++-mode bindings, for instance. This shadows them instead.
-;;               (when (member major-mode '(c++-mode c-mode))
-;;                 (local-set-key (kbd "C-c C-c") 'compilation-hydra/body)))))
+;; Define hydra for programming modes.
+;; (add-hook 'prog-mode-hook
+;;           (lambda ()
+;;             ;; Using local-set-key because defining the bindings in prog-mode-map will get
+;;             ;; overridden by c++-mode bindings, for instance. This shadows them instead.
+;;             (when (member major-mode '(c++-mode c-mode))
+;;               (local-set-key (kbd "C-c C-c") 'compilation-hydra/body))))
 
 
-;;treemacs
-(use-package lsp-treemacs
-  :after (lsp-mode treemacs)
+;; treemacs
+;; (use-package lsp-treemacs
+;;   :after (lsp-mode treemacs)
 
-  :commands lsp-treemacs-errors-list
-  :bind (:map lsp-mode-map
-	      ("C-[" . lsp-treemacs-errors-list)))
+;;   :commands lsp-treemacs-errors-list
+;;   :bind (:map lsp-mode-map
+;; 	      ("C-[" . lsp-treemacs-errors-list)))
 
-(use-package treemacs
-  :commands (treemacs)
-  :after (lsp-mode))
+;; (use-package treemacs
+;;   :commands (treemacs)
+;;   :after (lsp-mode))
 
-(use-package treemacs-icons-dired
-  :hook (dired-mode . treemacs-icons-dired-enable-once))
+;; (use-package treemacs-icons-dired
+;;   :hook (dired-mode . treemacs-icons-dired-enable-once))
+
+;; Java specific configuration
+(add-hook 'java-mode-hook #'lsp)
+(add-hook 'java-mode-hook 'flycheck-mode)
+(add-hook 'java-mode-hook 'company-mode)
+(add-hook 'after-init-hook 'global-company-mode)
 
 (when (eq system-type 'windows-nt)
-  (setenv "JAVA_HOME" "~/.jdks/openjdk-17.0.1")
-  (setq lsp-java-java-path "~/.jdks/openjdk-17.0.1/bin/java"))
+  (setenv "JAVA_HOME" "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\")
+  (setq lsp-java-java-path "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\bin\\java"))
 
 ;; Set Windows-specific preferences if running in a Windows environment.
-;; (defun udf-windows-setup () (interactive)
-;;   ;; The variable `git-shell-path' contains the path to the `Git\bin'
-;;   (setq git-shell-path ("C:\\Program Files\\Git\\bin"))
-;;   (setq git-shell-executable (concat git-shell-path "\\bash.exe"))
-;;   (add-to-list 'exec-path git-shell-path)
-;;   (setenv "PATH" (concat git-shell-path ";" (getenv "PATH"))))
+(defun udf-windows-setup () (interactive)
+       ;; The variable `git-shell-path' contains the path to the `Git\bin'
+       (setq git-shell-path ("C:\\Program Files\\Git\\bin"))
+       (setq git-shell-executable (concat git-shell-path "\\bash.exe"))
+       (add-to-list 'exec-path git-shell-path)
+       (setenv "PATH" (concat git-shell-path ";" (getenv "PATH"))))
 
-;; (if (eq system-type 'windows-nt)
-;;     (udf-windows-setup))
+(if (eq system-type 'windows-nt)
+    (udf-windows-setup))
 
 (provide 'init)
 ;;; init.el ends here
