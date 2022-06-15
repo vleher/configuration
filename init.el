@@ -716,5 +716,13 @@
 (if (eq system-type 'windows-nt)
     (udf-windows-setup))
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent)))
+
 (provide 'init)
 ;;; init.el ends here
