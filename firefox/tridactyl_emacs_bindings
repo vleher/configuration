@@ -2,14 +2,9 @@
 set editorcmd emacsclient -a \"\" -c -e '(progn (find-file "%f") (forward-line (1- %l)) (forward-char %c))'
 
 " Unbinding keys used both emacs and vim
-#unbind w
 unbind <C-u>
 unbind <C-x>
-#unbind <C-g>
 unbind <C-Space>
-
-" Ctrl-g is your friend (and hardcoded <C-,> of course)
-#bind --mode=browser <C-g> escapehatch
 
 " Navigation
 bind <C-v> scrollpage 1
@@ -47,13 +42,13 @@ bind --mode=hint <C-n> hint.focusBottomHint
 bind --mode=hint <C-p> hint.focusTopHint
 bind --mode=hint <C-f> hint.focusRightHint
 bind --mode=hint <C-b> hint.focusLeftHint
+set hintchars etahiswnpcod
 
 " History
 bind u urlparent
 bind t urlroot
 
 " Bookmarks
-bind M current_url bmark
 bind <C-x>rj fillcmdline bmarks
 bind <C-u><C-x>rj fillcmdline bmarks -t
 bind <C-x>rm current_url bmark
@@ -76,6 +71,8 @@ bind <C-/> undo
 
 " Pages
 bind R reload
+bind k back
+bind m forward
 bind + zoom 0.1 true
 bind - zoom -0.1 true
 bind = zoom 1
