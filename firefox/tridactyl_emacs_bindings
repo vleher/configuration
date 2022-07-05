@@ -86,7 +86,7 @@ bind <C-x>52 winopen
 bind <C-x><C-u>52 winopen -private
 
 " Open links
-bind g fillcmdline open
+bind O fillcmdline open
 bind <C-u>0g current_url open
 bind <C-u>g fillcmdline tabopen
 
@@ -142,4 +142,4 @@ bind --mode=ex <C-f> text.forward_char
 bind --mode=ex <C-b> text.backward_char
 
 " Functions
-command emacs-bindings-update source --url https://raw.githubusercontent.com/jumper047/tridactyl_emacs_config/main/emacs_bindings
+" command emacs-bindings-update source --url https://raw.githubusercontent.com/jumper047/tridactyl_emacs_config/main/emacs_bindings
