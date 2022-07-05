@@ -12,8 +12,8 @@
 
 #navigator-toolbox:hover:not([inFullscreen]) :-moz-any(#nav-bar),
 #navigator-toolbox:focus-within :-moz-any(#nav-bar) {
-    min-height: 32px !important;
-    max-height: 32px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
     margin-top: 1px !important;
     margin-bottom: -32px !important;
     transition: all 500ms ease 0s !important;
@@ -21,7 +21,7 @@
 }
 
 #urlbar {
-    --urlbar-toolbar-height: 32px !important
+    --urlbar-toolbar-height: 36px !important
 }
 
 .tabbrowser-tab {
@@ -30,20 +30,20 @@
     height: 18px !important;
     max-width: 32px !important;
     min-width: 32px !important;
-    min-height: 16px !important;
+    min-height: 14px !important;
 }
 
-.tabbrowser-tab[selected]:not([pinned]) {
+.tabbrowser-tab[selected] {
     min-width: 320px !important;
     overflow: hidden;
 }
 
-.tabbrowser-tab[selected]:not([pinned]) .tab-label-container {
-    min-width: 100px !important;
-    max-width: 300px !important;
-    overflow: hidden;
-}
+/* .tabbrowser-tab[selected]:not([pinned]) .tab-label-container { */
+/*     min-width: 100px !important; */
+/*     max-width: 300px !important; */
+/*     overflow: hidden; */
+/* } */
 
-.tabbrowser-tab:not([pinned]) .tab-label-container {
-    max-width: 0px !important;
-}
+/* .tabbrowser-tab:not([pinned]) .tab-label-container { */
+/*     max-width: 6px !important; */
+/* } */
