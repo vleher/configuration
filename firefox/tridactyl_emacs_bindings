@@ -14,14 +14,15 @@ bind <A-<> scrollto 0
 bind <C-n> scrollline 10
 bind <C-p> scrollline -10
 bind <C-u><C-Space> jumpprev
-bind n followpage next
-bind p followpage prev
+bind K back
+bind M forward
+bind N followpage next
+bind P followpage prev
 " bindings below remains same for
 " backward compatibility reasons.
 " should be removed some day
 bind <C-c><C-n> followpage next
 bind <C-c><C-p> followpage prev
-
 
 " Commands
 bind <A-x> fillcmdline_notrail
@@ -34,6 +35,7 @@ bind --mode=ex <C-r> findnext -1
 
 " Hinting
 bind h hint
+bind H hint
 bind <C-u>h hint -b
 bind c hint -y
 bind w clipboard yank
@@ -71,8 +73,6 @@ bind <C-/> undo
 
 " Pages
 bind R reload
-bind k back
-bind m forward
 bind + zoom 0.1 true
 bind - zoom -0.1 true
 bind = zoom 1
