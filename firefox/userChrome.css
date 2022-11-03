@@ -28,22 +28,10 @@
     font-family: Roboto !important;
     font-size: 12px !important;
     height: 18px !important;
-    max-width: 32px !important;
-    min-width: 32px !important;
     min-height: 14px !important;
 }
 
 .tabbrowser-tab[selected] {
-    min-width: 320px !important;
+    min-width: 420px !important;
     overflow: hidden;
 }
-
-/* .tabbrowser-tab[selected]:not([pinned]) .tab-label-container { */
-/*     min-width: 100px !important; */
-/*     max-width: 300px !important; */
-/*     overflow: hidden; */
-/* } */
-
-/* .tabbrowser-tab:not([pinned]) .tab-label-container { */
-/*     max-width: 6px !important; */
-/* } */

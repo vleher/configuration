@@ -51,8 +51,8 @@ read -n1 ANSWER
 if [[ $ANSWER == "y" ]] || [[ $ANSWER == "Y" ]]; then
   # Slash escaping is - as always - rather obscure.
   # Here we find the slash and replace it by backslash and slash: / -> \/
-  SUGGESTED_PKGS=$(echo $SUGGESTED_PKGS | sed 's/\//\\\\\//g')
+  #SUGGESTED_PKGS=$(echo $SUGGESTED_PKGS | sed 's/\//\\\\\//g')
   for SUGGESTED in $SUGGESTED_PKGS; do
-    sed -i "/$SUGGESTED/d" $WORLDFILE
+    sed -i "\,$SUGGESTED,d" $WORLDFILE
   done
 fi

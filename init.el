@@ -2,7 +2,6 @@
 ;; -*- coding: utf-8; lexical-binding: t -*-
 
 ;;; Commentary:
-;;
 (require 'package)                   ; Bring in to the environment all package management functions
 
 ;; A list of package repositories
@@ -63,15 +62,6 @@
 (setq kill-do-not-save-duplicates t)
 (setq help-window-select t)
 
-;; set everything to UTF8
-(set-charset-priority 'unicode)
-(setq locale-coding-system 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
-;;(setq default-process-coding-system '(utf-8-unix . utf-8-unix))
-
 ;;set the line number mode to true
 (setq line-number-mode t)
 (global-display-line-numbers-mode t)
@@ -88,6 +78,11 @@
 (tab-bar-mode -1)
 (setq whitespace-line-column 264)
 
+;; Configure tabs to 4 spaces
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+(setq indent-line-function 'insert-tab)
+
 ;; Recent flie list
 (use-package recentf)
 (recentf-mode 1)
@@ -103,7 +98,7 @@
 ;; Cycle through "just one space", "no spaces" and original number of spaces,
 ;; instead of just "just one space". It does not delete newlines either
 (global-set-key (kbd "M-SPC")
-		'(lambda () (interactive) (cycle-spacing +1 t)))
+		'(lambda () (interactive) (cycle- +1 t)))
 
 ;; Make font bigger/smaller.
 (global-set-key (kbd "C-+") 'text-scale-increase)
@@ -135,15 +130,12 @@
       kept-new-versions 5    ; keep some new versions
       kept-old-versions 2)   ; and some old ones, too
 
-;; Cleanup whitespace before saving
-(add-hook 'before-save-hook 'whitespace-cleanup)
-
 ;; Set fonts (for linux and windows)
 (cond
- ((find-font (font-spec :name "DejaVu Sans"))
-  (set-face-attribute 'default nil :font "DejaVu Sans-10.0"))
- ((find-font (font-spec :name "Noto Sans"))
-  (set-face-attribute 'default nil :font "Noto Sans-10.0"))
+ ((find-font (font-spec :name "DejaVu Sans Mono"))
+  (set-face-attribute 'default nil :font "DejaVu Sans Mono-10.0"))
+ ((find-font (font-spec :name "Noto Sans Mono"))
+  (set-face-attribute 'default nil :font "Noto Sans Mono-10.0"))
  ((find-font (font-spec :name "Calibri"))
   (progn
     (set-face-attribute 'default nil :font "Calibri-12")
@@ -151,7 +143,6 @@
 
 ;; Try to fix the mode line
 (use-package diminish :config (diminish 'visual-line-mode))
-;;(use-package mood-line :config (mood-line-mode))
 
 ;; Making it easier to discover Emacs key presses.
 (use-package which-key
@@ -160,17 +151,6 @@
   :config (which-key-mode)
   (which-key-setup-side-window-bottom)
   (setq which-key-idle-delay 1.05))
-
-;; Better fonts
-(use-package all-the-icons)
-(use-package all-the-icons-dired
-  :after all-the-icons
-  :hook (dired-mode . all-the-icons-dired-mode))
-(use-package all-the-icons-ibuffer :hook (ibuffer-mode . all-the-icons-ibuffer-mode))
-(use-package all-the-icons-completion
-  :config
-  (all-the-icons-completion-mode)
-  (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup))
 
 ;; Dim the inactive buffers
 (use-package dimmer
@@ -234,33 +214,12 @@
 
 (use-package org-bullets :hook (org-mode . org-bullets-mode))
 
-;;Easy kill setup and configuration
-;; (use-package easy-kill
-;;   :config
-;;   (global-set-key [remap kill-ring-save] #'easy-kill)
-;;   (global-set-key [remap mark-sexp] #'easy-mark))
-
 (put 'erase-buffer 'disabled nil)
 
 ;; Multiple Cursor Support
 (use-package multiple-cursors
   :bind (("C-c C-e m" . #'mc/edit-lines)
 	 ("C-c C-e d" . #'mc/mark-all-dwim)))
-
-;;Adding flyspell for spell checking.
-;; (use-package flyspell
-;;   :defer t
-;;   :init
-;;   (progn
-;;     (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-;;     (add-hook 'text-mode-hook 'flyspell-mode)
-;;     (add-hook 'emacs-lisp-mode-hook 'flyspell-mode)
-;;     (add-hook 'lisp-interaction-mode-hook 'flyspell-mode)
-;;     )
-;;   :config
-;;   ;; Sets flyspell correction to use two-finger mouse click
-;;   (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
-;;   )
 
 ;; Whitespace configuration
 (use-package whitespace
@@ -277,28 +236,12 @@
 (add-to-list 'custom-theme-load-path (expand-file-name --themes-dir))
 (load-theme 'nord t)
 
-;; Org2Blog configuration
-;; (use-package xml-rpc
-;;   :defer t)
-;; (use-package netrc
-;;   :defer t)
-
-;; (setq org2blog/wp-show-post-in-browser t)
-
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-;;Aggressive indent mode
-(use-package aggressive-indent
-  :diminish
-  :hook
-  (c-mode . aggressive-indent-mode)
-  (emacs-lisp-mode . aggressive-indent-mode)
-  (java-mode . aggressive-indent-mode))
 
 ;; Window switching configuration ;; Ace Window
 (use-package ace-window
@@ -428,6 +371,16 @@
 (use-package yasnippet :diminish :config (yas-global-mode) :custom (yas-prompt-functions '(yas-completing-prompt)))
 (use-package yasnippet-snippets :diminish)
 
+;;;;; Treemacs ;;;;;;
+(use-package treemacs
+  :ensure t
+  :defer t
+  )
+
+(use-package treemacs-projectile :after (treemacs projectile) :ensure t)
+(use-package treemacs-icons-dired :hook (dired-mode . treemacs-icons-dired-enable-once) :ensure t)
+(add-hook 'dired-mode-hook 'treemacs-icons-dired-mode)
+
 ;; lsp mode
 (use-package lsp-mode
   :hook (
@@ -454,7 +407,7 @@
 	      lsp-ui-doc-max-width 100
 	      ))
 
-(use-package lsp-java  :config (add-hook 'java-mode-hook 'lsp))
+(use-package lsp-java)
 
 ;; DAP mode for debugging
 (use-package dap-mode
@@ -645,62 +598,30 @@
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
-;; (defhydra yank-pop-hydra ()
-;;   "yank"
-;;   ("C-y" yank nil)
-;;   ("M-y" yank-pop nil)
-;;   ("y" (yank-pop 1) "next")
-;;   ("Y" (yank-pop -1) "prev"))
-
-;; (global-set-key (kbd "M-y") #'yank-pop-hydra/yank-pop)
-;; (global-set-key (kbd "C-y") #'yank-pop-hydra/yank)
-
-;; (defhydra compilation-hydra (:columns 4)
-;;   ("c" compile "Compile")
-;;   ("C" compile-from-buffer-folder "Compile from buffer folder")
-;;   ("r" recompile "Recompile")
-;;   ("k" netrom/kill-compilation "Stop")
-;;   ("n" next-error "Next error")
-;;   ("N" next-error-skip-warnings "Next error, skip warnings")
-;;   ("p" previous-error "Previous error")
-;;   ("f" first-error "First error")
-;;   ("l" netrom/compilation-last-error "Last error")
-;;   ("s" netrom/compilation-toggle-scroll "Toggle scroll")
-;;   ("t" netrom/compilation-toggle-threshold "Toggle threshold")
-;;   ("q" nil "Cancel" :color blue))
-
-;; (global-set-key [(f5)] 'compilation-hydra/body)
-
-;; Define hydra for programming modes.
-;; (add-hook 'prog-mode-hook
-;;           (lambda ()
-;;             ;; Using local-set-key because defining the bindings in prog-mode-map will get
-;;             ;; overridden by c++-mode bindings, for instance. This shadows them instead.
-;;             (when (member major-mode '(c++-mode c-mode))
-;;               (local-set-key (kbd "C-c C-c") 'compilation-hydra/body))))
-
-
-;; treemacs
-;; (use-package lsp-treemacs
-;;   :after (lsp-mode treemacs)
-
-;;   :commands lsp-treemacs-errors-list
-;;   :bind (:map lsp-mode-map
-;; 	      ("C-[" . lsp-treemacs-errors-list)))
-
-;; (use-package treemacs
-;;   :commands (treemacs)
-;;   :after (lsp-mode))
-
-;; (use-package treemacs-icons-dired
-;;   :hook (dired-mode . treemacs-icons-dired-enable-once))
-
 ;; Java specific configuration
+(setq lsp-enable-symbol-highlighting t)
+(setq lsp-ui-doc-enable t)
+(setq lsp-ui-doc-show-with-cursor t)
+(setq lsp-ui-doc-show-with-mouse t)
+(setq lsp-lens-enable t)
+(setq lsp-headerline-breadcrumb-enable t)
+(setq lsp-ui-sideline-enable t)
+(setq lsp-ui-sideline-show-code-actions nil)
+(setq lsp-ui-sideline-show-hover t)
+(setq lsp-modeline-code-actions-enable t)
+(setq lsp-eldoc-enable-hover t)
+(setq lsp-modeline-diagnostics-enable t)
+(setq lsp-signature-auto-activate t) ;; you could manually request them via `lsp-signature-activate`
+(setq lsp-signature-render-documentation t)
+(setq lsp-completion-show-detail t)
+(setq lsp-completion-show-kind t)
+
 (add-hook 'java-mode-hook #'lsp)
 (add-hook 'java-mode-hook 'flycheck-mode)
 (add-hook 'java-mode-hook 'company-mode)
 (add-hook 'after-init-hook 'global-company-mode)
 
+;; Set Java VM for windows
 (when (eq system-type 'windows-nt)
   (setenv "JAVA_HOME" "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\")
   (setq lsp-java-java-path "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\bin\\java"))
@@ -722,7 +643,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent)))
+   '(treemacs-projectile yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent))
+ '(warning-suppress-types '((emacs) (emacs))))
 
 (provide 'init)
 ;;; init.el ends here
