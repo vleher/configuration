@@ -138,8 +138,8 @@
   (set-face-attribute 'default nil :font "Noto Sans Mono-10.0"))
  ((find-font (font-spec :name "Calibri"))
   (progn
-    (set-face-attribute 'default nil :font "Calibri-12")
-    (set-face-attribute 'mode-line nil :font "Calibri-9"))))
+    (set-face-attribute 'default nil :font "Consolas-10")
+    (set-face-attribute 'mode-line nil :font "Consolas-9"))))
 
 ;; Try to fix the mode line
 (use-package diminish :config (diminish 'visual-line-mode))
