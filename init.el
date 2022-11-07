@@ -387,7 +387,7 @@
   (projectile-mode +1))
 (setq projectile-indexing-method 'alien)
 
-(use-package flycheck :init (global-flycheck-mode))
+(use-package flycheck :config (global-flycheck-mode))
 
 ;; yasnippet configuration
 (use-package yasnippet :diminish :config (yas-global-mode) :custom (yas-prompt-functions '(yas-completing-prompt)))
