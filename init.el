@@ -81,10 +81,9 @@
 ;; Save hooks
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (add-hook 'after-save-hook 'read-only-mode)
-
+(global-set-key (kbd "C-i") 'read-only-mode)
 (setq-default view-read-only t)
 (setq-default buffer-read-only t)
-(add-hook 'find-file-hook (lambda() (unless (derived-mode-p 'Magit) (read-only-mode))))
 
 ;; Configure tabs to 4 spaces
 (setq-default indent-tabs-mode nil)
@@ -94,6 +93,12 @@
 ;; Save History
 (setq history-length 25)
 (savehist-mode 1)
+
+;; Unicode fonts
+(use-package unicode-fonts
+   :ensure t
+   :config
+    (unicode-fonts-setup))
 
 ;; Recent flie list
 (use-package recentf)
@@ -665,20 +670,20 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(lsp-sonarlint-java lsp-sonarlint csv csv-mode treemacs-projectile yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent))
+    '(unicode-fonts lsp-sonarlint-java lsp-sonarlint csv csv-mode treemacs-projectile yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent))
  '(warning-suppress-log-types
-   '(((undo discard-info))
-     ((undo discard-info))
-     ((undo discard-info))
-     ((undo discard-info))
-     (emacs)
-     (emacs)))
+    '(((undo discard-info))
+      ((undo discard-info))
+      ((undo discard-info))
+      ((undo discard-info))
+      (emacs)
+      (emacs)))
  '(warning-suppress-types
-   '(((undo discard-info))
-     ((undo discard-info))
-     ((undo discard-info))
-     (emacs)
-     (emacs))))
+    '(((undo discard-info))
+      ((undo discard-info))
+      ((undo discard-info))
+      (emacs)
+      (emacs))))
 
 (provide 'init)
 ;;; init.el ends here
