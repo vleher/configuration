@@ -441,7 +441,9 @@
 
 ;; Sonarlint
 (use-package lsp-sonarlint
+  :ensure t
   :after lsp-java)
+(require 'lsp-sonarlint-java)
 (setq lsp-sonarlint-java-enabled t)
 
 ;; DAP mode for debugging
