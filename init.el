@@ -75,6 +75,10 @@
 (save-place-mode)
 ;; Automatically add ending brackets and braces
 (electric-pair-mode 1)
+;; Make return key also do indent in the current buffer
+(electric-indent-local-mode 1)
+;; make return key also do indent globally
+(electric-indent-mode 1)
 (tab-bar-mode -1)
 (setq whitespace-line-column 264)
 
@@ -85,9 +89,13 @@
 (setq-default view-read-only t)
 (setq-default buffer-read-only t)
 
-;; Configure tabs to 4 spaces
+;; Tabs vs Spaces
+;; Indent always uses spaces and never tabs
 (setq-default indent-tabs-mode nil)
+;; Set the default tab size to 4
 (setq-default tab-width 4)
+;; Tab key will always indent command
+(setq-default tab-always-indent t)
 (setq indent-line-function 'insert-tab)
 
 ;; Save History
@@ -254,7 +262,7 @@
 (use-package ripgrep)
 
 ;; Theme configuration
-(add-to-list 'custom-theme-load-path (expand-file-name --themes-dir))
+(use-package nord-theme)
 (load-theme 'nord t)
 
 (custom-set-faces
@@ -653,37 +661,20 @@
   (setenv "JAVA_HOME" "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\")
   (setq lsp-java-java-path "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\bin\\java"))
 
-;; Set Windows-specific preferences if running in a Windows environment.
-(defun udf-windows-setup () (interactive)
-       ;; The variable `git-shell-path' contains the path to the `Git\bin'
-       (setq git-shell-path ("C:\\Program Files\\Git\\bin"))
-       (setq git-shell-executable (concat git-shell-path "\\bash.exe"))
-       (add-to-list 'exec-path git-shell-path)
-       (setenv "PATH" (concat git-shell-path ";" (getenv "PATH"))))
-
-(if (eq system-type 'windows-nt)
-    (udf-windows-setup))
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-    '(unicode-fonts lsp-sonarlint-java lsp-sonarlint csv csv-mode treemacs-projectile yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent))
+   '(unicode-fonts lsp-sonarlint-java lsp-sonarlint csv csv-mode treemacs-projectile yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent))
  '(warning-suppress-log-types
-    '(((undo discard-info))
-      ((undo discard-info))
-      ((undo discard-info))
-      ((undo discard-info))
-      (emacs)
-      (emacs)))
+   '((comp)
+     ((undo discard-info))
+     (emacs)))
  '(warning-suppress-types
-    '(((undo discard-info))
-      ((undo discard-info))
-      ((undo discard-info))
-      (emacs)
-      (emacs))))
+   '(((undo discard-info))
+     (emacs))))
 
 (provide 'init)
 ;;; init.el ends here
