@@ -99,7 +99,7 @@
 
 (use-package smart-tab :ensure t)
 (use-package smart-tabs-mode :ensure t)
-(smart-tabs-insinuate 'c 'java 'javascript 'perl 'python)
+(smart-tabs-insinuate 'c 'java 'javascript 'python)
 
 (use-package smartparens :ensure t)
 (use-package smart-semicolon :ensure t)
@@ -659,6 +659,7 @@
 (setq lsp-completion-show-detail t)
 (setq lsp-completion-show-kind t)
 (setq lsp-java-format-settings-url "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml")
+;;(setq lsp-java-format-settings-url "~/git/devenv/eclipse/eclipse-formatter-java.xml")
 
 (add-hook 'java-mode-hook #'lsp)
 (add-hook 'java-mode-hook 'flycheck-mode)
