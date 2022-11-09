@@ -85,8 +85,8 @@
 ;; Save hooks
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (add-hook 'after-save-hook 'read-only-mode)
-(global-set-key (kbd "C-i") 'read-only-mode)
-(setq-default view-read-only t)
+(global-set-key (kbd "C-i") 'read-only-mode) ;; Same as TAB
+;;(setq-default view-read-only t)
 (setq-default buffer-read-only t)
 
 ;; Tabs vs Spaces
@@ -270,7 +270,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(region ((t (:extend t :background "#000000")))))
+ )
 
 ;; Window switching configuration ;; Ace Window
 (use-package ace-window
@@ -652,6 +652,7 @@
 (setq lsp-signature-render-documentation t)
 (setq lsp-completion-show-detail t)
 (setq lsp-completion-show-kind t)
+(setq lsp-java-format-settings-url "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml")
 
 (add-hook 'java-mode-hook #'lsp)
 (add-hook 'java-mode-hook 'flycheck-mode)
