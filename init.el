@@ -86,17 +86,23 @@
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (add-hook 'after-save-hook 'read-only-mode)
 (global-set-key (kbd "C-i") 'read-only-mode) ;; Same as TAB
-;;(setq-default view-read-only t)
 (setq-default buffer-read-only t)
 
 ;; Tabs vs Spaces
-;; Indent always uses spaces and never tabs
-(setq-default indent-tabs-mode nil)
+;; Indent uses tabs
+(setq-default indent-tabs-mode t)
 ;; Set the default tab size to 4
 (setq-default tab-width 4)
 ;; Tab key will always indent command
 (setq-default tab-always-indent t)
 (setq indent-line-function 'insert-tab)
+
+(use-package smart-tab :ensure t)
+(use-package smart-tabs-mode :ensure t)
+(smart-tabs-insinuate 'c 'java 'javascript 'perl 'python)
+
+(use-package smartparens :ensure t)
+(use-package smart-semicolon :ensure t)
 
 ;; Save History
 (setq history-length 25)
@@ -144,13 +150,13 @@
       (make-directory dir t)))
   (setq backup-directory-alist `(("." . ,backup-dir))
 	    auto-save-file-name-transforms `((".*" ,auto-saves-dir t))
-	    auto-save-list-file-prefix (concat auto-saves-dir ".saves-")))
+		auto-save-list-file-prefix (concat auto-saves-dir ".saves-")))
 
-(setq backup-by-copying t    ; Don't delink hardlinks
-      delete-old-versions t  ; Clean up the backups
-      version-control t      ; Use version numbers on backups,
-      kept-new-versions 5    ; keep some new versions
-      kept-old-versions 2)   ; and some old ones, too
+(setq backup-by-copying t	 ; Don't delink hardlinks
+	  delete-old-versions t	 ; Clean up the backups
+	  version-control t		 ; Use version numbers on backups,
+	  kept-new-versions 5	 ; keep some new versions
+	  kept-old-versions 2)	 ; and some old ones, too
 
 ;; Set fonts (for linux and windows)
 (cond
@@ -162,8 +168,8 @@
   (set-face-attribute 'mode-line nil :font "Noto Sans Mono-8.0"))
  ((find-font (font-spec :name "Calibri"))
   (progn
-    (set-face-attribute 'default nil :font "Consolas-10")
-    (set-face-attribute 'mode-line nil :font "Consolas-9"))))
+	(set-face-attribute 'default nil :font "Consolas-10")
+	(set-face-attribute 'mode-line nil :font "Consolas-9"))))
 
 ;; Try to fix the mode line
 (use-package diminish :config (diminish 'visual-line-mode))
@@ -195,22 +201,22 @@
 (setq tramp-default-remote-shell "/bin/bash")
 
 (connection-local-set-profile-variables 'tramp-connection-local-default-shell-profile
-					                    '((shell-file-name . "/bin/bash")
-					                      (shell-command-switch . "-c")))
+										'((shell-file-name . "/bin/bash")
+										  (shell-command-switch . "-c")))
 
 ;; Org Mode Configuration
 (use-package org
   :hook ((org-mode . visual-line-mode) (org-mode . pt/org-mode-hook))
   :hook ((org-src-mode . display-line-numbers-mode))
   :bind (("C-c o c" . org-capture)
-	     ("C-c o a" . org-agenda)
-	     ("C-c o A" . consult-org-agenda)
-	     :map org-mode-map
-	     ("M-<left>" . nil)
-	     ("M-<right>" . nil)
-	     ("C-c c" . #'org-mode-insert-code)
-	     ("C-c a f" . #'org-shifttab)
-	     ("C-c a S" . #'zero-width))
+		 ("C-c o a" . org-agenda)
+		 ("C-c o A" . consult-org-agenda)
+		 :map org-mode-map
+		 ("M-<left>" . nil)
+		 ("M-<right>" . nil)
+		 ("C-c c" . #'org-mode-insert-code)
+		 ("C-c a f" . #'org-shifttab)
+		 ("C-c a S" . #'zero-width))
   :custom
   (org-adapt-indentation t)
   (org-special-ctrl-a/e t)
@@ -228,9 +234,9 @@
   (defun zero-width () (interactive) (insert "​"))
 
   (defun org-mode-insert-code ()
-    "Like markdown-insert-code, but for org instead."
-    (interactive)
-    (org-emphasize ?~)))
+	"Like markdown-insert-code, but for org instead."
+	(interactive)
+	(org-emphasize ?~)))
 
 (use-package org-modern
   :config (global-org-modern-mode)
@@ -248,7 +254,7 @@
 ;; Multiple Cursor Support
 (use-package multiple-cursors
   :bind (("C-c C-e m" . #'mc/edit-lines)
-	     ("C-c C-e d" . #'mc/mark-all-dwim)))
+		 ("C-c C-e d" . #'mc/mark-all-dwim)))
 
 ;; Whitespace configuration
 (use-package whitespace
@@ -670,14 +676,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(unicode-fonts lsp-sonarlint-java lsp-sonarlint csv csv-mode treemacs-projectile yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent))
- '(warning-suppress-log-types
-   '((comp)
-     ((undo discard-info))
-     (emacs)))
- '(warning-suppress-types
-   '(((undo discard-info))
-     (emacs))))
+   '(smart-semicolon smart-tab smart-tabs-mode smartparens unicode-fonts lsp-sonarlint-java lsp-sonarlint csv csv-mode treemacs-projectile yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent))
+ '(warning-suppress-log-types '((comp) ((undo discard-info)) (emacs)))
+ '(warning-suppress-types '(((undo discard-info)) (emacs))))
 
 (provide 'init)
 ;;; init.el ends here
