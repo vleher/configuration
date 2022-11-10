@@ -85,7 +85,7 @@
 ;; Save hooks
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (add-hook 'after-save-hook 'read-only-mode)
-(global-set-key (kbd "C-i") 'read-only-mode) ;; Same as TAB
+(global-set-key (kbd "C-x w") 'read-only-mode) ;; Same as TAB
 (setq-default buffer-read-only t)
 
 ;; Tabs vs Spaces
@@ -110,9 +110,9 @@
 
 ;; Unicode fonts
 (use-package unicode-fonts
-   :ensure t
-   :config
-    (unicode-fonts-setup))
+  :ensure t
+  :config
+  (unicode-fonts-setup))
 
 ;; Recent flie list
 (use-package recentf)
@@ -208,15 +208,6 @@
 (use-package org
   :hook ((org-mode . visual-line-mode) (org-mode . pt/org-mode-hook))
   :hook ((org-src-mode . display-line-numbers-mode))
-  :bind (("C-c o c" . org-capture)
-		 ("C-c o a" . org-agenda)
-		 ("C-c o A" . consult-org-agenda)
-		 :map org-mode-map
-		 ("M-<left>" . nil)
-		 ("M-<right>" . nil)
-		 ("C-c c" . #'org-mode-insert-code)
-		 ("C-c a f" . #'org-shifttab)
-		 ("C-c a S" . #'zero-width))
   :custom
   (org-adapt-indentation t)
   (org-special-ctrl-a/e t)
