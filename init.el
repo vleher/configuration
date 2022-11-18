@@ -47,6 +47,10 @@
 (load "server")
 (unless (server-running-p) (server-start))
 
+;; Theme configuration
+(use-package nord-theme)
+(load-theme 'nord t)
+
 ;; Configure the Emacs Frame
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
@@ -83,9 +87,10 @@
 (setq whitespace-line-column 264)
 
 ;; Save hooks
+(add-hook 'before-save-hook 'lsp-format-buffer)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (add-hook 'after-save-hook 'read-only-mode)
-(global-set-key (kbd "C-x w") 'read-only-mode) ;; Same as TAB
+(global-set-key (kbd "C-x w") 'read-only-mode)
 (setq-default buffer-read-only t)
 
 ;; Tabs vs Spaces
@@ -160,13 +165,13 @@
 
 ;; Set fonts (for linux and windows)
 (cond
- ((find-font (font-spec :name "DejaVu Sans Mono"))
-  (set-face-attribute 'default nil :font "DejaVu Sans Mono-10.0")
-  (set-face-attribute 'mode-line nil :font "DejaVu Sans Mono-8.0"))
  ((find-font (font-spec :name "Noto Sans Mono"))
   (set-face-attribute 'default nil :font "Noto Sans Mono-10.0")
-  (set-face-attribute 'mode-line nil :font "Noto Sans Mono-8.0"))
- ((find-font (font-spec :name "Calibri"))
+  (set-face-attribute 'mode-line nil :font "Noto Sans Mono-9.0"))
+ ((find-font (font-spec :name "DejaVu Sans Mono"))
+  (set-face-attribute 'default nil :font "DejaVu Sans Mono-10.0")
+  (set-face-attribute 'mode-line nil :font "DejaVu Sans Mono-9.0"))
+ ((find-font (font-spec :name "Consolas"))
   (progn
 	(set-face-attribute 'default nil :font "Consolas-10")
 	(set-face-attribute 'mode-line nil :font "Consolas-9"))))
@@ -257,10 +262,6 @@
 
 ;; RIPgrep and rg
 (use-package ripgrep)
-
-;; Theme configuration
-(use-package nord-theme)
-(load-theme 'nord t)
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -435,6 +436,7 @@
 	          ))
 
 (use-package lsp-java)
+(lsp-treemacs-sync-mode 1)
 
 ;; Sonarlint
 (use-package lsp-sonarlint
@@ -668,7 +670,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(smart-semicolon smart-tab smart-tabs-mode smartparens unicode-fonts lsp-sonarlint-java lsp-sonarlint csv csv-mode treemacs-projectile yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent))
+	'(consult-yasnippet java-snippets company-go go-mode smart-semicolon smart-tab smart-tabs-mode smartparens unicode-fonts lsp-sonarlint-java lsp-sonarlint csv csv-mode treemacs-projectile yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent))
  '(warning-suppress-log-types '((comp) ((undo discard-info)) (emacs)))
  '(warning-suppress-types '(((undo discard-info)) (emacs))))
 
