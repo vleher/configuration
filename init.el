@@ -89,7 +89,7 @@
 ;; Save hooks
 (add-hook 'before-save-hook 'lsp-format-buffer)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
-(add-hook 'after-save-hook 'read-only-mode)
+;;(add-hook 'after-save-hook 'read-only-mode)
 (global-set-key (kbd "C-x w") 'read-only-mode)
 (setq-default buffer-read-only t)
 
@@ -111,7 +111,7 @@
 
 ;; Save History
 (setq history-length 25)
-(savehist-mode 1)
+(use-package savehist :init (savehist-mode))
 
 ;; Unicode fonts
 (use-package unicode-fonts
@@ -372,12 +372,11 @@
 (use-package company-box
   :diminish
   :config
-  (if (display-graphic-p)
+  ;;(if (display-graphic-p)
       ;; Show font icons in windowed mode.
-      (setq company-box-icons-alist 'company-box-icons-all-the-icons
-	        company-box-color-icon t)
+      ;;(setq company-box-icons-alist 'company-box-icons-all-the-icons company-box-color-icon t)
     ;; Show compatible icons in terminal.
-    (setq company-box-icons-alist 'company-box-icons-icons-in-terminal))
+    ;;(setq company-box-icons-alist 'company-box-icons-icons-in-terminal))
   :hook (company-mode . company-box-mode))
 
 (use-package company-flx
@@ -459,7 +458,7 @@
 	     (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))))
 (use-package dap-java :ensure nil)
 
-;;;;; Selectrum ;;;;;
+;;;;; Vertico and Completion ;;;;;
 (use-package orderless
   :config
   (setq completion-styles '(orderless basic)))
@@ -472,25 +471,9 @@
 (use-package marginalia
   :config   (marginalia-mode +1))
 
-(use-package selectrum
-  :requires orderless
-  :config
-  (setq selectrum-refine-candidates-function #'orderless-filter
-	    selectrum-highlight-candidates-function #'orderless-highlight-matches
-	    selectrum-count-style 'current/matches
-	    selectrum-max-window-height 15)
-  (selectrum-mode +1))
-
-(use-package selectrum-prescient
-  :requires selectrum prescient
-  :config
-  ;; Use filtring from only `completion-styles' and not selectrum.
-  (setq selectrum-prescient-enable-filtering nil)
-
-  ;; But enable frequency and recency ordering from selectrum.
-  (selectrum-prescient-mode +1))
-
-(global-set-key (kbd "C-x C-.") #'selectrum-repeat)
+(use-package vertico :init (vertico-mode)
+  (setq vertico-resize -1)
+  (setq vertico-cycle t))
 
 ;; Configuration for Consult
 (use-package consult
@@ -609,11 +592,17 @@
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
   )
 
+(use-package consult-flycheck :after consult)
+(use-package consult-ls-git :after consult)
+(use-package consult-lsp :after consult)
+(use-package consult-projectile :after consult)
+(use-package consult-yasnippet :after consult)
+
 ;; Configuration for embark
 (use-package embark
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
-   ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("M-." . embark-dwim)        ;; good alternative: M-.
    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
   :init
   ;; Optionally replace the key help with a completing-read interface
@@ -670,7 +659,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-	'(consult-yasnippet java-snippets company-go go-mode smart-semicolon smart-tab smart-tabs-mode smartparens unicode-fonts lsp-sonarlint-java lsp-sonarlint csv csv-mode treemacs-projectile yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent))
+   '(vertico consult-yasnippet java-snippets company-go go-mode smart-semicolon smart-tab smart-tabs-mode smartparens unicode-fonts lsp-sonarlint-java lsp-sonarlint csv csv-mode treemacs-projectile yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent))
  '(warning-suppress-log-types '((comp) ((undo discard-info)) (emacs)))
  '(warning-suppress-types '(((undo discard-info)) (emacs))))
 
