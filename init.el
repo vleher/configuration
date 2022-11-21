@@ -166,15 +166,12 @@
 ;; Set fonts (for linux and windows)
 (cond
  ((find-font (font-spec :name "Noto Sans Mono"))
-  (set-face-attribute 'default nil :font "Noto Sans Mono-10.0")
-  (set-face-attribute 'mode-line nil :font "Noto Sans Mono-9.0"))
+  (set-face-attribute 'default nil :font "Noto Sans Mono-10.0"))
  ((find-font (font-spec :name "DejaVu Sans Mono"))
-  (set-face-attribute 'default nil :font "DejaVu Sans Mono-10.0")
-  (set-face-attribute 'mode-line nil :font "DejaVu Sans Mono-9.0"))
+  (set-face-attribute 'default nil :font "DejaVu Sans Mono-10.0"))
  ((find-font (font-spec :name "Consolas"))
   (progn
-	(set-face-attribute 'default nil :font "Consolas-10")
-	(set-face-attribute 'mode-line nil :font "Consolas-9"))))
+	(set-face-attribute 'default nil :font "Consolas-10"))))
 
 ;; Try to fix the mode line
 (use-package diminish :config (diminish 'visual-line-mode))
@@ -457,6 +454,9 @@
 	     (dap-session-created . (lambda (&_rest) (dap-hydra)))
 	     (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))))
 (use-package dap-java :ensure nil)
+
+(setq lsp-java-format-settings-url "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml")
+(setq lsp-java-format-settings-profile "GoogleStyle")
 
 ;;;;; Vertico and Completion ;;;;;
 (use-package orderless
