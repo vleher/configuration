@@ -55,16 +55,19 @@
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (blink-cursor-mode 0)
+(tab-bar-mode -1)
 (menu-bar-mode -1)
+(scroll-bar-mode -1)
 (setq frame-title-format '("" "[%b] <%f> - Emacs " emacs-version))
 (setq gc-cons-threshold 10000000)
 (setq ring-bell-function 'ignore)
 (setq initial-scratch-message nil)
 (setq sentence-end-double-space nil)
-(put 'scroll-left 'disabled nil)
+
 (setq use-dialog-box nil)
 (setq kill-do-not-save-duplicates t)
 (setq help-window-select t)
+(setq whitespace-line-column 264)
 
 ;;set the line number mode to true
 (setq line-number-mode t)
@@ -83,13 +86,10 @@
 (electric-indent-local-mode 1)
 ;; make return key also do indent globally
 (electric-indent-mode 1)
-(tab-bar-mode -1)
-(setq whitespace-line-column 264)
 
 ;; Save hooks
 (add-hook 'before-save-hook 'lsp-format-buffer)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
-;;(add-hook 'after-save-hook 'read-only-mode)
 (global-set-key (kbd "C-x w") 'read-only-mode)
 (setq-default buffer-read-only t)
 
@@ -101,13 +101,6 @@
 ;; Tab key will always indent command
 (setq-default tab-always-indent t)
 (setq indent-line-function 'insert-tab)
-
-(use-package smart-tab :ensure t)
-(use-package smart-tabs-mode :ensure t)
-(smart-tabs-insinuate 'c 'java 'javascript 'python)
-
-(use-package smartparens :ensure t)
-(use-package smart-semicolon :ensure t)
 
 ;; Save History
 (setq history-length 25)
@@ -166,9 +159,9 @@
 ;; Set fonts (for linux and windows)
 (cond
  ((find-font (font-spec :name "Noto Sans Mono"))
-  (set-face-attribute 'default nil :font "Noto Sans Mono-10.0"))
+  (set-face-attribute 'default nil :font "Noto Sans Mono-9.5"))
  ((find-font (font-spec :name "DejaVu Sans Mono"))
-  (set-face-attribute 'default nil :font "DejaVu Sans Mono-10.0"))
+  (set-face-attribute 'default nil :font "DejaVu Sans Mono-9.5"))
  ((find-font (font-spec :name "Consolas"))
   (progn
 	(set-face-attribute 'default nil :font "Consolas-10"))))
@@ -186,7 +179,7 @@
 
 ;; Dim the inactive buffers
 (use-package dimmer
-  :custom (dimmer-fraction 0.31)
+  :custom (dimmer-fraction 0.2)
   :config (dimmer-mode))
 
 ;; paren matching with color
@@ -219,6 +212,7 @@
   (org-pretty-entities t)
   (org-startup-indented t)
   (org-list-description-max-indent 5)
+  (org-indent-indentation-per-level 4)
   (whitespace-style '(face tabs empty trailing))
 
   :config
@@ -291,6 +285,9 @@
 
 (global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
 (global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
+
+;; All the Icons
+(use-package all-the-icons :ensure t)
 
 ;; Magit configuration
 (use-package magit
@@ -369,11 +366,6 @@
 (use-package company-box
   :diminish
   :config
-  ;;(if (display-graphic-p)
-      ;; Show font icons in windowed mode.
-      ;;(setq company-box-icons-alist 'company-box-icons-all-the-icons company-box-color-icon t)
-    ;; Show compatible icons in terminal.
-    ;;(setq company-box-icons-alist 'company-box-icons-icons-in-terminal))
   :hook (company-mode . company-box-mode))
 
 (use-package company-flx
@@ -381,13 +373,6 @@
   :diminish
   :config
   (company-flx-mode +1))
-
-;;;; Projectile ;;;;;
-(use-package projectile
-  :config
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (projectile-mode +1))
-(setq projectile-indexing-method 'alien)
 
 (use-package flycheck :config (global-flycheck-mode))
 
@@ -401,22 +386,22 @@
   :defer t
   )
 
-(use-package treemacs-projectile :after (treemacs projectile) :ensure t)
 (use-package treemacs-icons-dired :hook (dired-mode . treemacs-icons-dired-enable-once) :ensure t)
 (add-hook 'dired-mode-hook 'treemacs-icons-dired-mode)
 
+;; Eglot
+;; (use-package eglot :ensure t)
+(use-package eglot-java :ensure t :after eglot)
+
 ;; lsp mode
 (use-package lsp-mode
-  :hook (
-	     (lsp-mode . lsp-enable-which-key-integration)
-	     (java-mode . #'lsp-deferred)
-	     )
-  :init (setq
-	     lsp-keymap-prefix "C-c l"              ; this is for which-key integration documentation, need to use lsp-mode-map
-	     lsp-enable-file-watchers nil
-	     read-process-output-max (* 1024 1024)  ; 1 mb
-	     lsp-idle-delay 0.500
-	     )
+  :ensure t
+  :init
+  (setq lsp-keymap-prefix "C-c l"
+		lsp-enable-file-watchers nil
+		lsp-idle-delay 0.500)
+  :hook ((lsp-mode . lsp-enable-which-key-integration)
+	     (java-mode . #'lsp-deferred))
   )
 
 (use-package hydra)
@@ -425,11 +410,8 @@
   :after (lsp-mode)
   :bind (:map lsp-ui-mode-map
 	          ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
-	          ([remap xref-find-references] . lsp-ui-peek-find-references))
-  :init (setq lsp-ui-doc-delay 1.5
-	          lsp-ui-doc-position 'bottom
-	          lsp-ui-doc-max-width 100
-	          ))
+	          ([remap xref-find-references] . lsp-ui-peek-find-references)
+			  ))
 
 (use-package lsp-java)
 (lsp-treemacs-sync-mode 1)
@@ -441,7 +423,7 @@
 (require 'lsp-sonarlint-java)
 (setq lsp-sonarlint-java-enabled t)
 
-;; DAP mode for debugging
+;; ;; DAP mode for debugging
 (use-package dap-mode
   :after (lsp-mode)
   :functions dap-hydra/nil
@@ -454,9 +436,6 @@
 	     (dap-session-created . (lambda (&_rest) (dap-hydra)))
 	     (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))))
 (use-package dap-java :ensure nil)
-
-(setq lsp-java-format-settings-url "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml")
-(setq lsp-java-format-settings-profile "GoogleStyle")
 
 ;;;;; Vertico and Completion ;;;;;
 (use-package orderless
@@ -557,7 +536,6 @@
   ;; Optionally configure preview. The default value
   ;; is 'any, such that any key triggers the preview.
   (setq consult-preview-key 'any)
-  (setq consult-preview-key (kbd "M-."))
   (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
   ;; For some commands and buffer sources it is useful to configure the
   ;; :preview-key on a per-command basis using the `consult-customize' macro.
@@ -568,7 +546,7 @@
    consult-bookmark consult-recent-file consult-xref
    consult--source-bookmark consult--source-recent-file
    consult--source-project-recent-file
-   :preview-key (kbd "M-."))
+   )
 
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
@@ -584,7 +562,7 @@
   ;;;; 1. project.el (the default)
   ;; (setq consult-project-function #'consult--default-project--function)
   ;;;; 2. projectile.el (projectile-project-root)
-  (autoload 'projectile-project-root "projectile")
+  ;; (autoload 'projectile-project-root "projectile")
   ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
   ;;;; 3. vc.el (vc-root-dir)
   ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
@@ -594,8 +572,8 @@
 
 (use-package consult-flycheck :after consult)
 (use-package consult-ls-git :after consult)
+(use-package consult-eglot :after consult)
 (use-package consult-lsp :after consult)
-(use-package consult-projectile :after consult)
 (use-package consult-yasnippet :after consult)
 
 ;; Configuration for embark
@@ -627,7 +605,10 @@
 (setq lsp-enable-symbol-highlighting t)
 (setq lsp-ui-doc-enable t)
 (setq lsp-ui-doc-show-with-cursor t)
-(setq lsp-ui-doc-show-with-mouse t)
+(setq lsp-ui-doc-show-with-mouse nil)
+(setq lsp-ui-doc-delay 1.5)
+(setq lsp-ui-doc-position 'bottom)
+(setq lsp-ui-doc-max-width 132)
 (setq lsp-lens-enable t)
 (setq lsp-headerline-breadcrumb-enable t)
 (setq lsp-ui-sideline-enable t)
@@ -642,11 +623,28 @@
 (setq lsp-completion-show-kind t)
 (setq lsp-java-format-settings-url "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml")
 ;;(setq lsp-java-format-settings-url "~/git/devenv/eclipse/eclipse-formatter-java.xml")
+(setq lsp-java-format-settings-profile "GoogleStyle")
 
+;;(add-hook 'java-mode-hook 'eglot-ensure)
+;;(add-hook 'java-mode-hook 'eglot-java-mode)
 (add-hook 'java-mode-hook #'lsp)
 (add-hook 'java-mode-hook 'flycheck-mode)
 (add-hook 'java-mode-hook 'company-mode)
 (add-hook 'after-init-hook 'global-company-mode)
+
+(add-hook 'php-mode 'eglot-ensure)
+(add-hook 'c-mode 'eglot-ensure)
+;; (add-hook 'sh-mode 'eglot-ensure)
+;; (add-hook 'shell-mode 'eglot-ensure)
+;; (add-hook 'css-mode 'eglot-ensure)
+;; (add-hook 'json-mode 'eglot-ensure)
+;; (add-hook 'js-mode 'eglot-ensure)
+;; (add-hook 'perl-mode 'eglot-ensure)
+;; (add-hook 'python-mode 'eglot-ensure)
+;; (add-hook 'yaml-mode 'eglot-ensure)
+
+(add-hook 'css-mode 'lsp-css)
+(add-hook 'sh-mode 'bash-ls)
 
 ;; Set Java VM for windows
 (when (eq system-type 'windows-nt)
@@ -659,9 +657,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(vertico consult-yasnippet java-snippets company-go go-mode smart-semicolon smart-tab smart-tabs-mode smartparens unicode-fonts lsp-sonarlint-java lsp-sonarlint csv csv-mode treemacs-projectile yasnippet-snippets which-key use-package treemacs-magit treemacs-icons-dired treemacs-all-the-icons selectrum-prescient ripgrep rg rainbow-delimiters projectile org-modern org-bullets org-alert orderless nord-theme multiple-cursors mood-line marginalia magit-libgit lsp-ui lsp-java json-mode htmlize git-gutter-fringe flycheck embark-consult easy-kill dimmer diminish diff-hl crux company-php company-org-block company-fuzzy company-flx company-box auto-package-update all-the-icons-ibuffer all-the-icons-dired all-the-icons-completion aggressive-indent))
- '(warning-suppress-log-types '((comp) ((undo discard-info)) (emacs)))
- '(warning-suppress-types '(((undo discard-info)) (emacs))))
+   '(all-the-icons yasnippet-snippets which-key vertico use-package unicode-fonts treemacs-icons-dired smartparens smart-tabs-mode smart-tab smart-semicolon ripgrep rainbow-delimiters prescient php-mode org-modern org-bullets orderless nord-theme multiple-cursors markdown-mode marginalia magit json-mode htmlize embark-consult eglot-java dimmer diminish diff-hl csv-mode crux consult-yasnippet consult-ls-git consult-flycheck consult-eglot company-flx company-box auto-package-update)))
 
 (provide 'init)
 ;;; init.el ends here

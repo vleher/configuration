@@ -2,29 +2,29 @@
 	name = leher
 	email = vleher@gmail.com
 [core]
-        editor = emacs
-        eol = lf
-        autocrlf = input
-        sparsecheckout = true
-        excludesfile = ~/configuration/.gitignore_global
+	editor = emacs
+	eol = lf
+	autocrlf = input
+	sparsecheckout = true
+	excludesfile = ~/configuration/.gitignore_global
 [color]
-        ui = true
+  	ui = true
 [diff]
-        tool = diff
+    tool = diff
 [alias]
-        co = checkout
-        br = branch
-        ci = commit
-        st = status
-        up = !git fetch && git rebase --autostash FETCH_HEAD
-        lg = log --pretty=format: '%h %ad | %s%d [%an]' --graph --date=short --abbrev-commit -100
+	co = checkout
+	br = branch
+	ci = commit
+	st = status
+	up = !git fetch && git rebase --autostash FETCH_HEAD
+	lg = log --pretty=format: '%h %ad | %s%d [%an]' --graph --date=short --abbrev-commit -100
 [pull]
-        rebase = true
+ 	rebase = true
 [rebase]
-        autostash = true
+ 	autostash = true
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !/usr/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper =
+	phelper = !/usr/bin/gh auth git-credential
