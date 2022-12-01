@@ -48,7 +48,7 @@
 (unless (server-running-p) (server-start))
 
 ;; Theme configuration
-(use-package nord-theme)
+(use-package nord-theme :ensure t :config (setq nord-region-highlight "frost"))
 (load-theme 'nord t)
 
 ;; Configure the Emacs Frame
@@ -78,8 +78,11 @@
 (global-visual-line-mode t)
 (global-font-lock-mode t)
 (global-hl-line-mode t)
-(show-paren-mode 1)
+
 (save-place-mode)
+
+(show-paren-mode 1)
+
 ;; Automatically add ending brackets and braces
 (electric-pair-mode 1)
 ;; Make return key also do indent in the current buffer
@@ -90,8 +93,6 @@
 ;; Save hooks
 (add-hook 'before-save-hook 'lsp-format-buffer)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
-(global-set-key (kbd "C-x w") 'read-only-mode)
-(setq-default buffer-read-only t)
 
 ;; Tabs vs Spaces
 ;; Indent uses tabs
@@ -131,7 +132,9 @@
 (global-set-key (kbd "C-0") 'text-scale-adjust)
 
 ;; Revert the buffer automatically if it changes in the filesystem
-(global-auto-revert-mode 1)
+(global-auto-revert-mode t)
+(setq auto-revert-check-vc-info t)
+(setq global-auto-revert-non-file-buffers t)
 
 ;; Resume the previous session
 (desktop-save-mode 1)
@@ -177,6 +180,10 @@
   (which-key-setup-side-window-bottom)
   (setq which-key-idle-delay 1.05))
 
+;; Treesitter
+(use-package tree-sitter :ensure t :config (global-tree-sitter-mode) :hook (tree-sitter-mode . tree-sitter-hl-mode))
+(use-package tree-sitter-langs :ensure t :after tree-sitter)
+
 ;; Dim the inactive buffers
 (use-package dimmer
   :custom (dimmer-fraction 0.2)
@@ -190,6 +197,10 @@
 ;; Crux Configuration
 (use-package crux)
 
+;; Apheleia
+(use-package apheleia :diminish :ensure t :config (apheleia-global-mode +1))
+
+;; Tramp
 (use-package tramp)
 (setq tramp-default-method "ssh")
 (setq tramp-verbose 1)
@@ -389,6 +400,9 @@
 (use-package treemacs-icons-dired :hook (dired-mode . treemacs-icons-dired-enable-once) :ensure t)
 (add-hook 'dired-mode-hook 'treemacs-icons-dired-mode)
 
+;; Git Info in Dired
+(use-package dired-git-info :ensure t :after dired :commands (dired-git-info-mode))
+
 ;; Eglot
 ;; (use-package eglot :ensure t)
 (use-package eglot-java :ensure t :after eglot)
@@ -423,6 +437,18 @@
 (require 'lsp-sonarlint-java)
 (setq lsp-sonarlint-java-enabled t)
 
+(require 'lsp-sonarlint-php)
+(setq lsp-sonarlint-php-enabled t)
+
+(require 'lsp-sonarlint-html)
+(setq lsp-sonarlint-html-enabled t)
+
+(require 'lsp-sonarlint-javascript)
+(setq lsp-sonarlint-javascript-enabled t)
+
+(require 'lsp-sonarlint-typescript)
+(setq lsp-sonarlint-typescript-enabled t)
+
 ;; ;; DAP mode for debugging
 (use-package dap-mode
   :after (lsp-mode)
@@ -430,8 +456,8 @@
   :config
   (require 'dap-java)
   :bind (:map lsp-mode-map
-	          ("<f5>" . dap-debug)
-	          ("M-<f5>" . dap-hydra))
+	          ("C-c d" . dap-debug)
+	          ("C-c D" . dap-hydra))
   :hook ((dap-mode . dap-ui-mode)
 	     (dap-session-created . (lambda (&_rest) (dap-hydra)))
 	     (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))))
@@ -657,7 +683,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(all-the-icons yasnippet-snippets which-key vertico use-package unicode-fonts treemacs-icons-dired smartparens smart-tabs-mode smart-tab smart-semicolon ripgrep rainbow-delimiters prescient php-mode org-modern org-bullets orderless nord-theme multiple-cursors markdown-mode marginalia magit json-mode htmlize embark-consult eglot-java dimmer diminish diff-hl csv-mode crux consult-yasnippet consult-ls-git consult-flycheck consult-eglot company-flx company-box auto-package-update)))
+   '(tree-sitter-langs apheleia transient all-the-icons yasnippet-snippets which-key vertico use-package unicode-fonts treemacs-icons-dired smartparens smart-tabs-mode smart-tab smart-semicolon ripgrep rainbow-delimiters prescient php-mode org-modern org-bullets orderless nord-theme multiple-cursors markdown-mode marginalia magit json-mode htmlize embark-consult eglot-java dimmer diminish diff-hl csv-mode crux consult-yasnippet consult-ls-git consult-flycheck consult-eglot company-flx company-box auto-package-update))
+ '(warning-suppress-types '((comp))))
 
 (provide 'init)
 ;;; init.el ends here
