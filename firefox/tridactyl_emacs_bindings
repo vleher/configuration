@@ -1,5 +1,5 @@
 " Set external editor command
-set editorcmd emacsclient -a \"\" -r -e '(progn (find-file "%f") (forward-line (1- %l)) (forward-char %c))'
+set editorcmd emacsclient -a \"\" -c -e '(progn (find-file "%f") (forward-line (1- %l)) (forward-char %c))'
 
 " Unbinding keys used both emacs and vim
 unbind <C-u>
@@ -18,14 +18,9 @@ bind K back
 bind M forward
 bind N followpage next
 bind P followpage prev
-" bindings below remains same for
-" backward compatibility reasons.
-" should be removed some day
-bind <C-c><C-n> followpage next
-bind <C-c><C-p> followpage prev
 
 " Commands
-bind <A-x> fillcmdline_notrail
+bind <M-x> fillcmdline_notrail
 
 " Searching
 " Fallback solution is / for find and win-G/win-g to select result
@@ -35,8 +30,11 @@ bind --mode=ex <C-r> findnext -1
 
 " Hinting
 bind h hint
+" open in background
 bind H hint -b
+" copy link target
 bind c hint -y
+" copy current url to clipboard
 bind w clipboard yank
 bind --mode=hint <C-g> hint.reset
 bind --mode=hint <C-n> hint.focusBottomHint
@@ -46,7 +44,9 @@ bind --mode=hint <C-b> hint.focusLeftHint
 set hintchars etahiswnpcod
 
 " History
+" go to the parent url
 bind u urlparent
+" go to the root domain of the url
 bind t urlroot
 
 " Bookmarks
@@ -55,15 +55,14 @@ bind <C-u><C-x>rj fillcmdline bmarks -t
 bind <C-x>rm current_url bmark
 
 " Tabs
-bind <A-n> tabnext
-bind <A-p> tabprev
+bind <C-ArrowRight> tabnext
+bind <C-ArrowLeft> tabprev
 bind <A-N> tabmove +1
 bind <A-P> tabmove -1
-bind E fillcmdline buffer
+bind <C-x>l tablast
+bind <C-x>f tabfirst
 bind <C-x>b fillcmdline buffer
 bind <C-x>k tabclose
-bind <C-x>0 tabclose
-bind <C-x>1 tabonly
 bind <C-x>tp pin
 bind <C-x>tm mute toggle
 bind <A-g>a tabaudio
@@ -101,13 +100,14 @@ bind --mode=insert <A-Backspace> text.backward_kill_word
 bind --mode=insert <C-a> text.beginning_of_line
 bind --mode=insert <C-e> text.end_of_line
 bind --mode=insert <C-f> text.forward_char
-bind --mode=insert <C-b> text.backward_char
+" bind --mode=insert <C-b> text.backward_char
 bind --mode=insert <A-f> text.forward_word
 bind --mode=insert <A-b> text.backward_word
 bind --mode=insert <C-y> text.insert_text
 bind --mode=insert <C-g> composite unfocus | mode normal
 
 " Selection
+" select an element
 bind <C-Space> hint -h
 bind --mode=visual <C-g> composite js document.getSelection().empty(); mode normal; hidecmdline
 bind --mode=visual <C-n> js document.getSelection().modify("extend","forward","line")
@@ -137,5 +137,5 @@ bind --mode=ex <C-g> ex.hide_and_clear
 bind --mode=ex <C-f> text.forward_char
 bind --mode=ex <C-b> text.backward_char
 
-" Functions
+" Functions (Modified from the URL below)
 " command emacs-bindings-update source --url https://raw.githubusercontent.com/jumper047/tridactyl_emacs_config/main/emacs_bindings

@@ -17,7 +17,6 @@ if [ $LEN -gt 7 ]; then
         exit;
 fi
 
-
 # example: create, start, stop, destroy
 if [ "$2" == "create" ]; then
 	echo "Creating view $viewname..."
