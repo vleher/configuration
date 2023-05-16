@@ -55,8 +55,8 @@ bind <C-u><C-x>rj fillcmdline bmarks -t
 bind <C-x>rm current_url bmark
 
 " Tabs
-bind <C-ArrowRight> tabnext
-bind <C-ArrowLeft> tabprev
+bind <A-ArrowRight> tabnext
+bind <A-ArrowLeft> tabprev
 bind <A-N> tabmove +1
 bind <A-P> tabmove -1
 bind <C-x>l tablast

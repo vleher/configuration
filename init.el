@@ -93,7 +93,7 @@
 (electric-indent-mode 1)
 
 ;; Save hooks
-(add-hook 'before-save-hook 'lsp-format-buffer nil t)
+(add-hook 'before-save-hook 'lsp-format-buffer)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; Tabs vs Spaces
@@ -104,9 +104,6 @@
 ;; Tab key will always indent command
 (setq-default tab-always-indent t)
 (setq indent-line-function 'insert-tab)
-
-;; Set completion-styles
-(setq completion-styles '(initials flex partial-completion basic))
 
 ;; Save History
 (setq history-length 25)
@@ -135,6 +132,15 @@
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-0") 'text-scale-adjust)
+
+;; Orderless
+(use-package orderless :ensure t)
+;; Set completion-styles
+(setq completion-styles '(initials flex partial-completion basic orderless))
+
+;; Windmove configuration
+(windmove-default-keybindings 'meta)
+(setq windmove-wrap-around t)
 
 ;; Revert the buffer automatically if it changes in the filesystem
 (global-auto-revert-mode t)
@@ -238,19 +244,12 @@
   :config (global-org-modern-mode)
   :custom (org-modern-variable-pitch nil))
 
-(use-package org-bullets :hook (org-mode . org-bullets-mode))
-
 (put 'erase-buffer 'disabled nil)
 
 ;; Fuzzy Search
 (setq search-whitespace-regexp ".*")
 (setq isearch-lax-whitespace t)
 (setq isearch-regexp-lax-whitespace nil)
-
-;; Multiple Cursor Support
-(use-package multiple-cursors
-  :bind (("C-c C-e m" . #'mc/edit-lines)
-		 ("C-c C-e d" . #'mc/mark-all-dwim)))
 
 (use-package eldoc :diminish :config (global-eldoc-mode))
 
@@ -263,12 +262,6 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-;; Window switching configuration ;; Ace Window
-(use-package ace-window
-  :config
-  (global-set-key (kbd "<C-tab>") 'ace-window)
-  (setq aw-keys '(?e ?t ?a ?h ?i ?s ?w ?n ?p ?c)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Custom splitting functions ;;
@@ -379,6 +372,8 @@
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
+  (corfu-auto-timer 0.5)
+  (corfu-auto-prefix 1)
   ;; (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
@@ -436,8 +431,8 @@
 (use-package dired-git-info :ensure t :after dired :commands (dired-git-info-mode))
 
 ;; Eglot
-;; (use-package eglot :ensure t)
-(use-package eglot-java :ensure t :after eglot)
+;;(use-package eglot :ensure t)
+;;(use-package eglot-java :ensure t :after eglot)
 
 ;; lsp mode
 (use-package lsp-mode
@@ -536,7 +531,7 @@
 		 ("C-c k" . consult-kmacro)
 		 ;; C-x bindings (ctl-x-map)
 		 ("C-x M-:" . consult-complex-command)	   ;; orig. repeat-complex-command
-		 ("C-x b" . consult-buffer)				   ;; orig. switch-to-buffer
+;;		 ("C-x b" . consult-buffer)				   ;; orig. switch-to-buffer
 		 ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
 		 ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
 		 ("C-x r b" . consult-bookmark)			   ;; orig. bookmark-jump
@@ -645,7 +640,7 @@
 
 (use-package consult-flycheck :after consult)
 (use-package consult-ls-git :after consult)
-(use-package consult-eglot :after consult)
+;;(use-package consult-eglot :after consult)
 (use-package consult-lsp :after consult)
 (use-package consult-yasnippet :after consult)
 
@@ -674,6 +669,15 @@
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
+;;; Ansi colors in compilation buffer
+(require 'xterm-color)
+(setq compilation-environment '("TERM=xterm-256color"))
+(defun my/advice-compilation-filter (f proc string)
+  (funcall f proc (xterm-color-filter string)))
+(advice-add 'compilation-filter :around #'my/advice-compilation-filter)
+
+
+
 ;; Java specific configuration
 (setq lsp-enable-symbol-highlighting t)
 (setq lsp-ui-doc-enable t)
@@ -701,12 +705,12 @@
 ;;(add-hook 'java-mode-hook 'eglot-ensure)
 ;;(add-hook 'java-mode-hook 'eglot-java-mode)
 (add-hook 'java-mode-hook #'lsp)
-(add-hook 'java-mode-hook 'flycheck-mode)
-(add-hook 'java-mode-hook 'corfu-mode)
+(add-hook 'java-mode-hook #'flycheck-mode)
+(add-hook 'java-mode-hook #'corfu-mode)
+;;(add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
 
-
-(add-hook 'php-mode 'eglot-ensure)
-(add-hook 'c-mode 'eglot-ensure)
+;;(add-hook 'php-mode 'eglot-ensure)
+;;(add-hook 'c-mode 'eglot-ensure)
 ;; (add-hook 'sh-mode 'eglot-ensure)
 ;; (add-hook 'shell-mode 'eglot-ensure)
 ;; (add-hook 'css-mode 'eglot-ensure)
@@ -729,9 +733,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(racer cargo toml-mode rust-playground flycheck-rust rust-auto-use rustic tree-sitter-langs apheleia transient all-the-icons yasnippet-snippets which-key vertico use-package unicode-fonts treemacs-icons-dired smartparens smart-tabs-mode smart-tab smart-semicolon ripgrep rainbow-delimiters prescient php-mode org-modern org-bullets nord-theme multiple-cursors markdown-mode marginalia magit json-mode htmlize embark-consult eglot-java dimmer diminish diff-hl csv-mode crux consult-yasnippet consult-ls-git consult-flycheck consult-eglot auto-package-update))
- '(warning-suppress-types '((comp))))
+ )
 
 (provide 'init)
 ;;; init.el ends here
