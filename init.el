@@ -234,6 +234,7 @@
   (org-startup-indented t)
   (org-list-description-max-indent 5)
   (org-indent-indentation-per-level 4)
+  (org-todo-keywords '((sequence "TODO" "WORKING" "WAITING" "|" "DONE" "CANCELLED")))
 
   :config
   (defun pt/org-mode-hook ())
