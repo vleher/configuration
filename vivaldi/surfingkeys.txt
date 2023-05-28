@@ -1,0 +1,4 @@
+.sk_theme {
+	font-size: 12px;
+	background: #3B4252;
+}
