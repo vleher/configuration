@@ -251,6 +251,7 @@
 (setq search-whitespace-regexp ".*")
 (setq isearch-lax-whitespace t)
 (setq isearch-regexp-lax-whitespace nil)
+(setq isearch-lazy-count t)
 
 (use-package eldoc :diminish :config (global-eldoc-mode))
 
@@ -375,8 +376,8 @@
   (corfu-auto t)                 ;; Enable auto completion
   (corfu-auto-timer 0.5)
   (corfu-auto-prefix 1)
-  ;; (corfu-separator ?\s)          ;; Orderless field separator
-  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+  (corfu-separator ?\s)          ;; Orderless field separator
+  (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
   ;; (corfu-preview-current nil)    ;; Disable current candidate preview
   ;; (corfu-preselect-first nil)    ;; Disable candidate preselection
@@ -424,7 +425,7 @@
 (use-package treemacs
   :ensure t
   :defer t)
-
+(add-hook 'treemacs-mode-hook (lambda() (display-line-numbers-mode -1)))
 (use-package treemacs-icons-dired :hook (dired-mode . treemacs-icons-dired-enable-once) :ensure t)
 (add-hook 'dired-mode-hook 'treemacs-icons-dired-mode)
 
@@ -532,7 +533,7 @@
 		 ("C-c k" . consult-kmacro)
 		 ;; C-x bindings (ctl-x-map)
 		 ("C-x M-:" . consult-complex-command)	   ;; orig. repeat-complex-command
-;;		 ("C-x b" . consult-buffer)				   ;; orig. switch-to-buffer
+		 ("C-x b" . consult-buffer)				   ;; orig. switch-to-buffer
 		 ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
 		 ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
 		 ("C-x r b" . consult-bookmark)			   ;; orig. bookmark-jump
@@ -605,7 +606,7 @@
   ;; Optionally configure preview. The default value
   ;; is 'any, such that any key triggers the preview.
   (setq consult-preview-key 'any)
-  (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+
   ;; For some commands and buffer sources it is useful to configure the
   ;; :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
@@ -643,7 +644,7 @@
 (use-package consult-ls-git :after consult)
 ;;(use-package consult-eglot :after consult)
 (use-package consult-lsp :after consult)
-(use-package consult-yasnippet :after consult)
+(use-package consult-yasnippet :diminish :after consult)
 
 ;; Configuration for embark
 (use-package embark
@@ -676,8 +677,6 @@
 (defun my/advice-compilation-filter (f proc string)
   (funcall f proc (xterm-color-filter string)))
 (advice-add 'compilation-filter :around #'my/advice-compilation-filter)
-
-
 
 ;; Java specific configuration
 (setq lsp-enable-symbol-highlighting t)
@@ -734,7 +733,86 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(connection-local-criteria-alist
+   '(((:application tramp)
+	  tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
+ '(connection-local-profile-alist
+   '((tramp-connection-local-darwin-ps-profile
+	  (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
+	  (tramp-process-attributes-ps-format
+	   (pid . number)
+	   (euid . number)
+	   (user . string)
+	   (egid . number)
+	   (comm . 52)
+	   (state . 5)
+	   (ppid . number)
+	   (pgrp . number)
+	   (sess . number)
+	   (ttname . string)
+	   (tpgid . number)
+	   (minflt . number)
+	   (majflt . number)
+	   (time . tramp-ps-time)
+	   (pri . number)
+	   (nice . number)
+	   (vsize . number)
+	   (rss . number)
+	   (etime . tramp-ps-time)
+	   (pcpu . number)
+	   (pmem . number)
+	   (args)))
+	 (tramp-connection-local-busybox-ps-profile
+	  (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
+	  (tramp-process-attributes-ps-format
+	   (pid . number)
+	   (user . string)
+	   (group . string)
+	   (comm . 52)
+	   (state . 5)
+	   (ppid . number)
+	   (pgrp . number)
+	   (ttname . string)
+	   (time . tramp-ps-time)
+	   (nice . number)
+	   (etime . tramp-ps-time)
+	   (args)))
+	 (tramp-connection-local-bsd-ps-profile
+	  (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
+	  (tramp-process-attributes-ps-format
+	   (pid . number)
+	   (euid . number)
+	   (user . string)
+	   (egid . number)
+	   (group . string)
+	   (comm . 52)
+	   (state . string)
+	   (ppid . number)
+	   (pgrp . number)
+	   (sess . number)
+	   (ttname . string)
+	   (tpgid . number)
+	   (minflt . number)
+	   (majflt . number)
+	   (time . tramp-ps-time)
+	   (pri . number)
+	   (nice . number)
+	   (vsize . number)
+	   (rss . number)
+	   (etime . number)
+	   (pcpu . number)
+	   (pmem . number)
+	   (args)))
+	 (tramp-connection-local-default-shell-profile
+	  (shell-file-name . "/bin/bash")
+	  (shell-command-switch . "-c"))
+	 (tramp-connection-local-default-system-profile
+	  (path-separator . ":")
+	  (null-device . "/dev/null"))))
+ '(custom-safe-themes
+   '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
+ '(package-selected-packages
+   '(smart-mode-line smart-mode-line-atom-one-dark-theme smart-mode-line-powerline-theme mood-line orderless lsp-java cargo auto-package-update org-modern marginalia racer nord-theme corfu dired-git-info prescient dimmer consult-ls-git vertico json-mode ripgrep consult-flycheck treemacs-icons-dired rainbow-delimiters consult-yasnippet diff-hl unicode-fonts diminish apheleia consult-lsp flycheck-rust all-the-icons crux embark-consult rust-playground magit htmlize lsp-sonarlint lsp-ui php-mode toml-mode tree-sitter-langs csv-mode rustic which-key yasnippet-snippets smartparens cargo-mode)))
 
 (provide 'init)
 ;;; init.el ends here
