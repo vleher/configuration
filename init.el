@@ -222,7 +222,7 @@
 
 ;; Org Mode Configuration
 (use-package org
-  :hook ((org-mode . visual-line-mode) (org-mode . pt/org-mode-hook))
+  :hook ((org-mode . visual-line-mode) (org-mode . pt/org-mode-hook) (org-mode . flyspell-mode))
   :hook ((org-src-mode . display-line-numbers-mode))
   :custom
   (org-adapt-indentation t)
@@ -233,7 +233,7 @@
   (org-pretty-entities t)
   (org-startup-indented t)
   (org-list-description-max-indent 5)
-  (org-indent-indentation-per-level 4)
+  (org-indent-indentation-per-level 10)
   (org-todo-keywords '((sequence "TODO" "WORKING" "WAITING" "|" "DONE" "CANCELLED")))
 
   :config
@@ -244,6 +244,48 @@
 (use-package org-modern
   :config (global-org-modern-mode)
   :custom (org-modern-variable-pitch nil))
+
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory (file-truename "~/workspace/org-files/"))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ("C-c n j" . org-roam-dailies-capture-today))
+  :config
+  ;; If you're using a vertical completion framework, you might want a more informative completion interface
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (setq org-roam-mode-sections (list #'org-roam-backlinks-section
+									 #'org-roam-reflinks-section
+									 #'org-roam-unlinked-references-section))
+  (org-roam-db-autosync-mode)
+  ;; If using org-roam-protocol
+  (require 'org-roam-protocol))
+
+(use-package org-brain :ensure t
+  :init
+  (setq org-brain-path "~/workspace/org-brain/")
+  :config
+  (bind-key "C-c b" 'org-brain-prefix-map org-mode-map)
+  (setq org-id-track-globally t)
+  (setq org-id-locations-file "~/.emacs.d/.org-id-locations")
+  (add-hook 'before-save-hook #'org-brain-ensure-ids-in-buffer)
+  (push '("b" "Brain" plain (function org-brain-goto-end)
+          "* %i%?" :empty-lines 1)
+        org-capture-templates)
+  (setq org-brain-visualize-default-choices 'all)
+  (setq org-brain-title-max-length 12)
+  (setq org-brain-include-file-entries nil
+        org-brain-file-entries-use-title nil))
+
+;; Allows you to edit entries directly from org-brain-visualize
+(use-package polymode
+  :config
+  (add-hook 'org-brain-visualize-mode-hook #'org-brain-polymode))
 
 (put 'erase-buffer 'disabled nil)
 
@@ -734,85 +776,85 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(connection-local-criteria-alist
-   '(((:application tramp)
-	  tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
+	'(((:application tramp)
+	   tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
  '(connection-local-profile-alist
-   '((tramp-connection-local-darwin-ps-profile
-	  (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
-	  (tramp-process-attributes-ps-format
-	   (pid . number)
-	   (euid . number)
-	   (user . string)
-	   (egid . number)
-	   (comm . 52)
-	   (state . 5)
-	   (ppid . number)
-	   (pgrp . number)
-	   (sess . number)
-	   (ttname . string)
-	   (tpgid . number)
-	   (minflt . number)
-	   (majflt . number)
-	   (time . tramp-ps-time)
-	   (pri . number)
-	   (nice . number)
-	   (vsize . number)
-	   (rss . number)
-	   (etime . tramp-ps-time)
-	   (pcpu . number)
-	   (pmem . number)
-	   (args)))
-	 (tramp-connection-local-busybox-ps-profile
-	  (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
-	  (tramp-process-attributes-ps-format
-	   (pid . number)
-	   (user . string)
-	   (group . string)
-	   (comm . 52)
-	   (state . 5)
-	   (ppid . number)
-	   (pgrp . number)
-	   (ttname . string)
-	   (time . tramp-ps-time)
-	   (nice . number)
-	   (etime . tramp-ps-time)
-	   (args)))
-	 (tramp-connection-local-bsd-ps-profile
-	  (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
-	  (tramp-process-attributes-ps-format
-	   (pid . number)
-	   (euid . number)
-	   (user . string)
-	   (egid . number)
-	   (group . string)
-	   (comm . 52)
-	   (state . string)
-	   (ppid . number)
-	   (pgrp . number)
-	   (sess . number)
-	   (ttname . string)
-	   (tpgid . number)
-	   (minflt . number)
-	   (majflt . number)
-	   (time . tramp-ps-time)
-	   (pri . number)
-	   (nice . number)
-	   (vsize . number)
-	   (rss . number)
-	   (etime . number)
-	   (pcpu . number)
-	   (pmem . number)
-	   (args)))
-	 (tramp-connection-local-default-shell-profile
-	  (shell-file-name . "/bin/bash")
-	  (shell-command-switch . "-c"))
-	 (tramp-connection-local-default-system-profile
-	  (path-separator . ":")
-	  (null-device . "/dev/null"))))
+	'((tramp-connection-local-darwin-ps-profile
+	   (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
+	   (tramp-process-attributes-ps-format
+		(pid . number)
+		(euid . number)
+		(user . string)
+		(egid . number)
+		(comm . 52)
+		(state . 5)
+		(ppid . number)
+		(pgrp . number)
+		(sess . number)
+		(ttname . string)
+		(tpgid . number)
+		(minflt . number)
+		(majflt . number)
+		(time . tramp-ps-time)
+		(pri . number)
+		(nice . number)
+		(vsize . number)
+		(rss . number)
+		(etime . tramp-ps-time)
+		(pcpu . number)
+		(pmem . number)
+		(args)))
+	  (tramp-connection-local-busybox-ps-profile
+	   (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
+	   (tramp-process-attributes-ps-format
+		(pid . number)
+		(user . string)
+		(group . string)
+		(comm . 52)
+		(state . 5)
+		(ppid . number)
+		(pgrp . number)
+		(ttname . string)
+		(time . tramp-ps-time)
+		(nice . number)
+		(etime . tramp-ps-time)
+		(args)))
+	  (tramp-connection-local-bsd-ps-profile
+	   (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
+	   (tramp-process-attributes-ps-format
+		(pid . number)
+		(euid . number)
+		(user . string)
+		(egid . number)
+		(group . string)
+		(comm . 52)
+		(state . string)
+		(ppid . number)
+		(pgrp . number)
+		(sess . number)
+		(ttname . string)
+		(tpgid . number)
+		(minflt . number)
+		(majflt . number)
+		(time . tramp-ps-time)
+		(pri . number)
+		(nice . number)
+		(vsize . number)
+		(rss . number)
+		(etime . number)
+		(pcpu . number)
+		(pmem . number)
+		(args)))
+	  (tramp-connection-local-default-shell-profile
+	   (shell-file-name . "/bin/bash")
+	   (shell-command-switch . "-c"))
+	  (tramp-connection-local-default-system-profile
+	   (path-separator . ":")
+	   (null-device . "/dev/null"))))
  '(custom-safe-themes
-   '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
+	'("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
  '(package-selected-packages
-   '(smart-mode-line smart-mode-line-atom-one-dark-theme smart-mode-line-powerline-theme mood-line orderless lsp-java cargo auto-package-update org-modern marginalia racer nord-theme corfu dired-git-info prescient dimmer consult-ls-git vertico json-mode ripgrep consult-flycheck treemacs-icons-dired rainbow-delimiters consult-yasnippet diff-hl unicode-fonts diminish apheleia consult-lsp flycheck-rust all-the-icons crux embark-consult rust-playground magit htmlize lsp-sonarlint lsp-ui php-mode toml-mode tree-sitter-langs csv-mode rustic which-key yasnippet-snippets smartparens cargo-mode)))
+	'(polymode org-brain org-roam smart-mode-line smart-mode-line-atom-one-dark-theme smart-mode-line-powerline-theme mood-line orderless lsp-java cargo auto-package-update org-modern marginalia racer nord-theme corfu dired-git-info prescient dimmer consult-ls-git vertico json-mode ripgrep consult-flycheck treemacs-icons-dired rainbow-delimiters consult-yasnippet diff-hl unicode-fonts diminish apheleia consult-lsp flycheck-rust all-the-icons crux embark-consult rust-playground magit htmlize lsp-sonarlint lsp-ui php-mode toml-mode tree-sitter-langs csv-mode rustic which-key yasnippet-snippets smartparens cargo-mode)))
 
 (provide 'init)
 ;;; init.el ends here
