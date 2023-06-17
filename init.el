@@ -106,7 +106,7 @@
 
 ;; Parenthesis
 (show-paren-mode 1)
-(use-package smartparens :diminish :ensure t :config (smartparens-mode))
+(use-package smartparens :ensure t :config (smartparens-mode))
 ;; Automatically add ending brackets and braces
 (electric-pair-mode 1)
 ;; Make return key also do indent in the current buffer
@@ -155,6 +155,9 @@
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-0") 'text-scale-adjust)
 
+;; VLF
+(use-package vlf)
+
 ;; Orderless
 (use-package orderless :ensure t)
 ;; Set completion-styles
@@ -199,7 +202,7 @@
   (set-face-attribute 'default nil :font "DejaVu Sans Mono-9.5"))
  ((find-font (font-spec :name "Consolas"))
   (progn
-	(set-face-attribute 'default nil :font "Consolas-10"))))
+	(set-face-attribute 'default nil :font "Consolas-10.5"))))
 
 ;; Try to fix the mode line
 (use-package diminish :config (diminish 'visual-line-mode))
@@ -213,7 +216,7 @@
   (setq which-key-idle-delay 1.05))
 
 ;; Treesitter
-(use-package tree-sitter :ensure t :diminish :config (global-tree-sitter-mode) :hook (tree-sitter-mode . tree-sitter-hl-mode))
+(use-package tree-sitter :ensure t :config (global-tree-sitter-mode) :hook (tree-sitter-mode . tree-sitter-hl-mode))
 (use-package tree-sitter-langs :ensure t :after tree-sitter)
 
 ;; Dim the inactive buffers
@@ -228,9 +231,10 @@
 
 ;; Crux Configuration
 (use-package crux)
+(global-set-key (kbd "C-c s") 'crux-create-scratch-buffer)
 
 ;; Apheleia
-(use-package apheleia :diminish :ensure t :config (apheleia-global-mode +1))
+(use-package apheleia :ensure t :config (apheleia-global-mode +1))
 
 ;; Tramp
 (use-package tramp)
@@ -244,9 +248,9 @@
 
 ;; Org Mode Configuration
 (use-package org
-  :hook ((org-mode . visual-line-mode) (org-mode . pt/org-mode-hook) (org-mode . flyspell-mode))
+  :hook ((org-mode . visual-line-mode) (org-mode . pt/org-mode-hook))
   :hook ((org-src-mode . display-line-numbers-mode))
-  :bind (("C-c a" . org-agenda) ("C-c c" . org-capture))
+  :bind (("C-c a" . org-agenda))
 
   :custom
   (org-adapt-indentation t)
@@ -259,6 +263,9 @@
   (org-special-ctrl-a/e t)
   (org-src-ask-before-returning-to-edit-buffer nil "org-src is kinda needy out of the box")
   (org-src-window-setup 'current-window)
+  (org-cycle-include-plain-lists 'integrate)
+  (org-agenda-files '("~/workspace/notes/"))
+  (org-startup-folded 'content)
   (org-startup-indented t)
   (org-todo-keywords '((sequence "TODO" "WORKING" "WAITING" "|" "DONE" "CANCELLED")))
 
@@ -266,7 +273,6 @@
   (defun pt/org-mode-hook ())
   (defun make-inserter (c) '(lambda () (interactive) (insert-char c)))
   (defun zero-width () (interactive) (insert "​")))
-
 
 (setq org-agenda-prefix-format
 	  '((agenda . " %i %-24c%?-18t% s")
@@ -287,11 +293,6 @@
 				((org-agenda-block-separator nil) (org-agenda-overriding-header "\n")))
 		  ))))
 
-;; Capture templates
-(setq org-capture-templates
-      '(("n" "Plain note" entry
-       (file "~/workspace/notes/general-notes.org") " " :empty-lines 1)))
-
 (put 'erase-buffer 'disabled nil)
 
 ;; Fuzzy Search
@@ -300,7 +301,7 @@
 (setq isearch-regexp-lax-whitespace nil)
 (setq isearch-lazy-count t)
 
-(use-package eldoc :diminish :config (global-eldoc-mode))
+(use-package eldoc :config (global-eldoc-mode))
 
 ;; RIPgrep and rg
 (use-package ripgrep)
@@ -415,6 +416,11 @@
 ;; Python
 (require 'python)
 (setq python-indent-offset 2)
+(use-package elpy
+	:ensure t
+	:defer t
+	:init
+		(advice-add 'python-mode :before 'elpy-enable))
 
 ;;;; Corfu
 (use-package corfu
@@ -466,8 +472,8 @@
 (use-package flycheck :config (global-flycheck-mode))
 
 ;; yasnippet configuration
-(use-package yasnippet :diminish :config (yas-global-mode t))
-(use-package yasnippet-snippets :diminish)
+(use-package yasnippet :config (yas-global-mode t))
+(use-package yasnippet-snippets)
 
 ;;;;; Treemacs ;;;;;;
 (use-package treemacs
@@ -695,7 +701,7 @@
 (use-package consult-ls-git :after consult)
 ;;(use-package consult-eglot :after consult)
 (use-package consult-lsp :after consult)
-(use-package consult-yasnippet :diminish :after consult)
+(use-package consult-yasnippet :after consult)
 
 ;; Configuration for embark
 (use-package embark
@@ -774,6 +780,9 @@
 (add-hook 'css-mode-hook 'lsp-css)
 (add-hook 'shell-mode-hook 'bash-ls)
 
+;; Set initial mode
+(setq initial-major-mode 'org-mode)
+
 ;; Set Java VM for windows
 (when (eq system-type 'windows-nt)
   (setenv "JAVA_HOME" "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\")
@@ -785,82 +794,82 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(connection-local-criteria-alist
-   '(((:application tramp)
-	  tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
+	'(((:application tramp)
+	   tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
  '(connection-local-profile-alist
-   '((tramp-connection-local-darwin-ps-profile
-	  (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
-	  (tramp-process-attributes-ps-format
-	   (pid . number)
-	   (euid . number)
-	   (user . string)
-	   (egid . number)
-	   (comm . 52)
-	   (state . 5)
-	   (ppid . number)
-	   (pgrp . number)
-	   (sess . number)
-	   (ttname . string)
-	   (tpgid . number)
-	   (minflt . number)
-	   (majflt . number)
-	   (time . tramp-ps-time)
-	   (pri . number)
-	   (nice . number)
-	   (vsize . number)
-	   (rss . number)
-	   (etime . tramp-ps-time)
-	   (pcpu . number)
-	   (pmem . number)
-	   (args)))
-	 (tramp-connection-local-busybox-ps-profile
-	  (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
-	  (tramp-process-attributes-ps-format
-	   (pid . number)
-	   (user . string)
-	   (group . string)
-	   (comm . 52)
-	   (state . 5)
-	   (ppid . number)
-	   (pgrp . number)
-	   (ttname . string)
-	   (time . tramp-ps-time)
-	   (nice . number)
-	   (etime . tramp-ps-time)
-	   (args)))
-	 (tramp-connection-local-bsd-ps-profile
-	  (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
-	  (tramp-process-attributes-ps-format
-	   (pid . number)
-	   (euid . number)
-	   (user . string)
-	   (egid . number)
-	   (group . string)
-	   (comm . 52)
-	   (state . string)
-	   (ppid . number)
-	   (pgrp . number)
-	   (sess . number)
-	   (ttname . string)
-	   (tpgid . number)
-	   (minflt . number)
-	   (majflt . number)
-	   (time . tramp-ps-time)
-	   (pri . number)
-	   (nice . number)
-	   (vsize . number)
-	   (rss . number)
-	   (etime . number)
-	   (pcpu . number)
-	   (pmem . number)
-	   (args)))
-	 (tramp-connection-local-default-shell-profile
-	  (shell-file-name . "/bin/bash")
-	  (shell-command-switch . "-c"))
-	 (tramp-connection-local-default-system-profile
-	  (path-separator . ":")
-	  (null-device . "/dev/null"))))
- '(org-agenda-files '("~/workspace/notes/")))
+	'((tramp-connection-local-darwin-ps-profile
+	   (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
+	   (tramp-process-attributes-ps-format
+		(pid . number)
+		(euid . number)
+		(user . string)
+		(egid . number)
+		(comm . 52)
+		(state . 5)
+		(ppid . number)
+		(pgrp . number)
+		(sess . number)
+		(ttname . string)
+		(tpgid . number)
+		(minflt . number)
+		(majflt . number)
+		(time . tramp-ps-time)
+		(pri . number)
+		(nice . number)
+		(vsize . number)
+		(rss . number)
+		(etime . tramp-ps-time)
+		(pcpu . number)
+		(pmem . number)
+		(args)))
+	  (tramp-connection-local-busybox-ps-profile
+	   (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
+	   (tramp-process-attributes-ps-format
+		(pid . number)
+		(user . string)
+		(group . string)
+		(comm . 52)
+		(state . 5)
+		(ppid . number)
+		(pgrp . number)
+		(ttname . string)
+		(time . tramp-ps-time)
+		(nice . number)
+		(etime . tramp-ps-time)
+		(args)))
+	  (tramp-connection-local-bsd-ps-profile
+	   (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
+	   (tramp-process-attributes-ps-format
+		(pid . number)
+		(euid . number)
+		(user . string)
+		(egid . number)
+		(group . string)
+		(comm . 52)
+		(state . string)
+		(ppid . number)
+		(pgrp . number)
+		(sess . number)
+		(ttname . string)
+		(tpgid . number)
+		(minflt . number)
+		(majflt . number)
+		(time . tramp-ps-time)
+		(pri . number)
+		(nice . number)
+		(vsize . number)
+		(rss . number)
+		(etime . number)
+		(pcpu . number)
+		(pmem . number)
+		(args)))
+	  (tramp-connection-local-default-shell-profile
+	   (shell-file-name . "/bin/bash")
+	   (shell-command-switch . "-c"))
+	  (tramp-connection-local-default-system-profile
+	   (path-separator . ":")
+	   (null-device . "/dev/null"))))
+ )
 
 (provide 'init)
 ;;; init.el ends here
