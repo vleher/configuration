@@ -53,6 +53,7 @@
 (setq use-package-always-ensure t)
 (setq lexical-binding t)
 (setq org-default-notes-dir "~/workspace/notes/")
+(setq frame-resize-pixelwise t)
 
 ;; package update configuration
 (use-package auto-package-update
@@ -193,6 +194,9 @@
 	  version-control t		 ; Use version numbers on backups,
 	  kept-new-versions 5	 ; keep some new versions
 	  kept-old-versions 2)	 ; and some old ones, too
+
+;; Set initial mode
+(setq initial-major-mode 'org-mode)
 
 ;; Set fonts (for linux and windows)
 (cond
@@ -367,28 +371,6 @@
 (use-package json-mode
   :mode ("\\.json$" . json-mode))
 
-;; Rust
-(use-package rustic :ensure t)
-
-(use-package cargo-mode :ensure t)
-(use-package cargo :hook (rust-mode . cargo-minor-mode)
-  :bind ("C-c C-c C-n" . cargo-process-new))
-(use-package flycheck-rust :ensure t :after flycheck)
-(use-package racer
-  :hook (rust-mode . racer-mode))
-
-(use-package rust-playground :ensure t)
-(use-package toml-mode :ensure t)
-
-(add-hook 'rust-mode-hook #'racer-mode)
-(add-hook 'racer-mode-hook #'eldoc-mode)
-
-(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
-(add-hook 'rustic-mode-hook #'lsp)
-(add-hook 'rustic-mode-hook #'flycheck-mode)
-(add-hook 'racer-mode-hook #'corfu-mode)
-
-
 ;; PHP
 (use-package php-mode)
 
@@ -487,83 +469,10 @@
 (use-package dired-git-info :ensure t :after dired :commands (dired-git-info-mode))
 
 ;; Eglot
-;;(use-package eglot :ensure t)
-;;(use-package eglot-java :ensure t :after eglot)
-
-;; lsp mode
-(use-package lsp-mode
-  :ensure t
-  :init
-  (setq lsp-keymap-prefix "C-c l"
-		lsp-enable-file-watchers nil
-		lsp-idle-delay 0.500)
-  (defun my/lsp-mode-setup-completion()
-	(setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults)) '(flex)))
-  :hook
-  ((lsp-mode . lsp-enable-which-key-integration)
-   (java-mode . #'lsp-deferred))
-  (lsp-completion-mode . my/lsp-mode-setup-completion)
-  :custom
-  ;;(lsp-completion-provider :none)
-  (lsp-rust-analyzer-cargo-watch-command "clippy")
-  (lsp-eldoc-render-all nil)
-  (lsp-idle-delay 0.6)
-  ;; enable / disable the hints as you prefer:
-  (lsp-rust-analyzer-server-display-inlay-hints t)
-  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-  (lsp-rust-analyzer-display-chaining-hints t)
-  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t)
-  (lsp-rust-analyzer-display-closure-return-type-hints t)
-  (lsp-rust-analyzer-display-parameter-hints t)
-  (lsp-rust-analyzer-display-reborrow-hints t))
+(use-package eglot :ensure t)
+(use-package eglot-java :ensure t :after eglot)
 
 (use-package hydra)
-
-(use-package lsp-ui
-  :ensure t
-  :after (lsp-mode)
-  :bind (:map lsp-ui-mode-map
-			  ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
-			  ([remap xref-find-references] . lsp-ui-peek-find-references))
-  :custom
-  (lsp-ui-peek-always-show t)
-  (lsp-ui-sideline-show-hover t)
-  (lsp-ui-doc-enable nil))
-
-(use-package lsp-java :ensure t :after lsp-mode)
-
-;; Sonarlint
-(use-package lsp-sonarlint
-  :ensure t
-  :after lsp-java)
-;; (require 'lsp-sonarlint-java)
-(setq lsp-sonarlint-java-enabled t)
-
-;;(require 'lsp-sonarlint-php)
-(setq lsp-sonarlint-php-enabled t)
-
-;;(require 'lsp-sonarlint-html)
-(setq lsp-sonarlint-html-enabled t)
-
-;;(require 'lsp-sonarlint-javascript)
-(setq lsp-sonarlint-javascript-enabled t)
-
-;;(require 'lsp-sonarlint-typescript)
-(setq lsp-sonarlint-typescript-enabled t)
-
-;; ;; DAP mode for debugging
-(use-package dap-mode
-  :after (lsp-mode)
-  :functions dap-hydra/nil
-  :config
-  (require 'dap-java)
-  :bind (:map lsp-mode-map
-			  ("C-c d" . dap-debug)
-			  ("C-c D" . dap-hydra))
-  :hook ((dap-mode . dap-ui-mode)
-		 (dap-session-created . (lambda (&_rest) (dap-hydra)))
-		 (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))))
-;;(use-package dap-java :ensure t)
 
 ;;;;; Vertico and Completion ;;;;;
 (use-package prescient
@@ -699,9 +608,35 @@
 
 (use-package consult-flycheck :after consult)
 (use-package consult-ls-git :after consult)
-;;(use-package consult-eglot :after consult)
-(use-package consult-lsp :after consult)
+(use-package consult-eglot :after consult)
 (use-package consult-yasnippet :after consult)
+
+;; XML Mode
+(defun nxml-where ()
+  "Display the hierarchy of XML elements the point is on as a path."
+  (interactive)
+  (let ((path nil))
+    (save-excursion
+      (save-restriction
+        (widen)
+        (while (and (< (point-min) (point)) ;; Doesn't error if point is at beginning of buffer
+                    (condition-case nil
+                        (progn
+                          (nxml-backward-up-element) ; always returns nil
+                          t)
+                      (error nil)))
+          (setq path (cons (xmltok-start-tag-local-name) path)))
+        (if (called-interactively-p t)
+            (message "/%s" (mapconcat 'identity path "/"))
+          (format "/%s" (mapconcat 'identity path "/")))))))
+
+(defun xml-find-file-hook ()
+  (when (derived-mode-p 'nxml-mode)
+    (which-function-mode t)
+    (setq which-func-mode t)
+    (add-hook 'which-func-functions 'nxml-where t t)))
+
+(add-hook 'find-file-hook 'xml-find-file-hook t)
 
 ;; Configuration for embark
 (use-package embark
@@ -735,53 +670,21 @@
   (funcall f proc (xterm-color-filter string)))
 (advice-add 'compilation-filter :around #'my/advice-compilation-filter)
 
-;; Java specific configuration
-(setq lsp-enable-symbol-highlighting t)
-(setq lsp-ui-doc-enable t)
-(setq lsp-ui-doc-show-with-cursor t)
-(setq lsp-ui-doc-show-with-mouse nil)
-(setq lsp-ui-doc-delay 1.5)
-(setq lsp-ui-doc-position 'bottom)
-(setq lsp-ui-doc-max-width 132)
-(setq lsp-lens-enable t)
-(setq lsp-headerline-breadcrumb-enable t)
-(setq lsp-ui-sideline-enable t)
-(setq lsp-ui-sideline-show-code-actions nil)
-(setq lsp-ui-sideline-show-hover t)
-(setq lsp-modeline-code-actions-enable t)
-(setq lsp-eldoc-enable-hover t)
-(setq lsp-modeline-diagnostics-enable t)
-(setq lsp-signature-auto-activate t) ;; you could manually request them via `lsp-signature-activate`
-(setq lsp-signature-render-documentation t)
-(setq lsp-completion-show-detail t)
-(setq lsp-completion-show-kind t)
-(setq lsp-java-format-settings-url "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml")
-;;(setq lsp-java-format-settings-url "~/git/devenv/eclipse/eclipse-formatter-java.xml")
-(setq lsp-java-format-settings-profile "GoogleStyle")
-
-;;(add-hook 'java-mode-hook 'eglot-ensure)
-;;(add-hook 'java-mode-hook 'eglot-java-mode)
-(add-hook 'java-mode-hook #'lsp)
+(add-hook 'java-mode-hook 'eglot-ensure)
+(add-hook 'java-mode-hook 'eglot-java-mode)
 (add-hook 'java-mode-hook #'flycheck-mode)
 (add-hook 'java-mode-hook #'corfu-mode)
-;;(add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
 
-;;(add-hook 'php-mode 'eglot-ensure)
-;;(add-hook 'c-mode 'eglot-ensure)
-;; (add-hook 'sh-mode 'eglot-ensure)
-;; (add-hook 'shell-mode 'eglot-ensure)
-;; (add-hook 'css-mode 'eglot-ensure)
-;; (add-hook 'json-mode 'eglot-ensure)
-;; (add-hook 'js-mode 'eglot-ensure)
-;; (add-hook 'perl-mode 'eglot-ensure)
-;; (add-hook 'python-mode 'eglot-ensure)
-;; (add-hook 'yaml-mode 'eglot-ensure)
-
-(add-hook 'css-mode-hook 'lsp-css)
-(add-hook 'shell-mode-hook 'bash-ls)
-
-;; Set initial mode
-(setq initial-major-mode 'org-mode)
+(add-hook 'php-mode 'eglot-ensure)
+(add-hook 'c-mode 'eglot-ensure)
+(add-hook 'sh-mode 'eglot-ensure)
+(add-hook 'shell-mode 'eglot-ensure)
+(add-hook 'css-mode 'eglot-ensure)
+(add-hook 'json-mode 'eglot-ensure)
+(add-hook 'js-mode 'eglot-ensure)
+(add-hook 'perl-mode 'eglot-ensure)
+(add-hook 'python-mode 'eglot-ensure)
+(add-hook 'yaml-mode 'eglot-ensure)
 
 ;; Set Java VM for windows
 (when (eq system-type 'windows-nt)
