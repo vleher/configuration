@@ -86,6 +86,7 @@
 (setq ring-bell-function 'ignore)
 (setq initial-scratch-message nil)
 (setq sentence-end-double-space nil)
+(setq-default cursor-type 'bar)
 
 (setq use-dialog-box nil)
 (setq kill-do-not-save-duplicates t)
@@ -175,8 +176,8 @@
 ;; Resume the previous session
 (desktop-save-mode 1)
 ;; Smoother scrolling
-(setq scroll-margin 0)
-(setq scroll-conservatively 100000)
+(setq scroll-margin 5)
+(setq scroll-conservatively 100)
 (setq scroll-preserve-screen-position 1)
 
 ;; Put backup files neatly away
@@ -299,6 +300,9 @@
 
 (put 'erase-buffer 'disabled nil)
 
+;; Org-roam configuration
+(use-package org-roam :ensure t)
+
 ;; Fuzzy Search
 (setq search-whitespace-regexp ".*")
 (setq isearch-lax-whitespace t)
@@ -399,10 +403,10 @@
 (require 'python)
 (setq python-indent-offset 2)
 (use-package elpy
-	:ensure t
-	:defer t
-	:init
-		(advice-add 'python-mode :before 'elpy-enable))
+  :ensure t
+  :defer t
+  :init
+  (advice-add 'python-mode :before 'elpy-enable))
 
 ;;;; Corfu
 (use-package corfu
@@ -410,11 +414,12 @@
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
+  (corfu-auto-delay 0)
   (corfu-auto-timer 0.5)
   (corfu-auto-prefix 1)
   (corfu-separator ?\s)          ;; Orderless field separator
   (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+  (corfu-quit-no-match t)      ;; Never quit, even if there is no match
   ;; (corfu-preview-current nil)    ;; Disable current candidate preview
   ;; (corfu-preselect-first nil)    ;; Disable candidate preselection
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
@@ -431,11 +436,6 @@
   :init
   (global-corfu-mode))
 
-;; Aggressive completion, cheap prefix filtering.
-(setq-local corfu-auto t
-            corfu-auto-delay 0
-            corfu-auto-prefix 0)
-
 ;; A few more useful configurations...
 (use-package emacs
   :init
@@ -451,7 +451,25 @@
   ;; `completion-at-point' is often bound to M-TAB.
   (setq tab-always-indent 'complete))
 
-(use-package flycheck :config (global-flycheck-mode))
+;; IEdit
+(use-package iedit)
+(defun iedit-dwim (arg)
+  "Starts iedit but uses \\[narrow-to-defun] to limit its scope."
+  (interactive "P")
+  (if arg
+      (iedit-mode)
+    (save-excursion
+      (save-restriction
+        (widen)
+        ;; this function determines the scope of `iedit-start'.
+        (if iedit-mode
+            (iedit-done)
+          ;; `current-word' can of course be replaced by other
+          ;; functions.
+          (narrow-to-defun)
+          (iedit-start (current-word) (point-min) (point-max)))))))
+
+(global-set-key (kbd "C-;") 'iedit-dwim)
 
 ;; yasnippet configuration
 (use-package yasnippet :config (yas-global-mode t))
@@ -460,7 +478,8 @@
 ;;;;; Treemacs ;;;;;;
 (use-package treemacs
   :ensure t
-  :defer t)
+  :commands (treemacs))
+
 (add-hook 'treemacs-mode-hook (lambda() (display-line-numbers-mode -1)))
 (use-package treemacs-icons-dired :hook (dired-mode . treemacs-icons-dired-enable-once) :ensure t)
 (add-hook 'dired-mode-hook 'treemacs-icons-dired-mode)
@@ -471,6 +490,23 @@
 ;; Eglot
 (use-package eglot :ensure t)
 (use-package eglot-java :ensure t :after eglot)
+
+(define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
+
+(add-hook 'java-mode-hook 'eglot-ensure)
+(add-hook 'java-mode-hook 'eglot-java-mode)
+(add-hook 'java-mode-hook 'corfu-mode)
+
+(add-hook 'php-mode 'eglot-ensure)
+(add-hook 'c-mode 'eglot-ensure)
+(add-hook 'sh-mode 'eglot-ensure)
+(add-hook 'shell-mode 'eglot-ensure)
+(add-hook 'css-mode 'eglot-ensure)
+(add-hook 'json-mode 'eglot-ensure)
+(add-hook 'js-mode 'eglot-ensure)
+(add-hook 'perl-mode 'eglot-ensure)
+(add-hook 'python-mode 'eglot-ensure)
+(add-hook 'yaml-mode 'eglot-ensure)
 
 (use-package hydra)
 
@@ -513,7 +549,7 @@
 		 ("<help> a" . consult-apropos)			   ;; orig. apropos-command
 		 ;; M-g bindings (goto-map)
 		 ("M-g e" . consult-compile-error)
-		 ("M-g f" . consult-flycheck)				;; Alternative: consult-flycheck
+
 		 ("M-g g" . consult-goto-line)			   ;; orig. goto-line
 		 ("M-g M-g" . consult-goto-line)		   ;; orig. goto-line
 		 ("M-g o" . consult-outline)			   ;; Alternative: consult-org-heading
@@ -606,7 +642,6 @@
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
   )
 
-(use-package consult-flycheck :after consult)
 (use-package consult-ls-git :after consult)
 (use-package consult-eglot :after consult)
 (use-package consult-yasnippet :after consult)
@@ -670,22 +705,6 @@
   (funcall f proc (xterm-color-filter string)))
 (advice-add 'compilation-filter :around #'my/advice-compilation-filter)
 
-(add-hook 'java-mode-hook 'eglot-ensure)
-(add-hook 'java-mode-hook 'eglot-java-mode)
-(add-hook 'java-mode-hook #'flycheck-mode)
-(add-hook 'java-mode-hook #'corfu-mode)
-
-(add-hook 'php-mode 'eglot-ensure)
-(add-hook 'c-mode 'eglot-ensure)
-(add-hook 'sh-mode 'eglot-ensure)
-(add-hook 'shell-mode 'eglot-ensure)
-(add-hook 'css-mode 'eglot-ensure)
-(add-hook 'json-mode 'eglot-ensure)
-(add-hook 'js-mode 'eglot-ensure)
-(add-hook 'perl-mode 'eglot-ensure)
-(add-hook 'python-mode 'eglot-ensure)
-(add-hook 'yaml-mode 'eglot-ensure)
-
 ;; Set Java VM for windows
 (when (eq system-type 'windows-nt)
   (setenv "JAVA_HOME" "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\")
@@ -697,81 +716,81 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(connection-local-criteria-alist
-	'(((:application tramp)
-	   tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
+   '(((:application tramp)
+	  tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
  '(connection-local-profile-alist
-	'((tramp-connection-local-darwin-ps-profile
-	   (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
-	   (tramp-process-attributes-ps-format
-		(pid . number)
-		(euid . number)
-		(user . string)
-		(egid . number)
-		(comm . 52)
-		(state . 5)
-		(ppid . number)
-		(pgrp . number)
-		(sess . number)
-		(ttname . string)
-		(tpgid . number)
-		(minflt . number)
-		(majflt . number)
-		(time . tramp-ps-time)
-		(pri . number)
-		(nice . number)
-		(vsize . number)
-		(rss . number)
-		(etime . tramp-ps-time)
-		(pcpu . number)
-		(pmem . number)
-		(args)))
-	  (tramp-connection-local-busybox-ps-profile
-	   (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
-	   (tramp-process-attributes-ps-format
-		(pid . number)
-		(user . string)
-		(group . string)
-		(comm . 52)
-		(state . 5)
-		(ppid . number)
-		(pgrp . number)
-		(ttname . string)
-		(time . tramp-ps-time)
-		(nice . number)
-		(etime . tramp-ps-time)
-		(args)))
-	  (tramp-connection-local-bsd-ps-profile
-	   (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
-	   (tramp-process-attributes-ps-format
-		(pid . number)
-		(euid . number)
-		(user . string)
-		(egid . number)
-		(group . string)
-		(comm . 52)
-		(state . string)
-		(ppid . number)
-		(pgrp . number)
-		(sess . number)
-		(ttname . string)
-		(tpgid . number)
-		(minflt . number)
-		(majflt . number)
-		(time . tramp-ps-time)
-		(pri . number)
-		(nice . number)
-		(vsize . number)
-		(rss . number)
-		(etime . number)
-		(pcpu . number)
-		(pmem . number)
-		(args)))
-	  (tramp-connection-local-default-shell-profile
-	   (shell-file-name . "/bin/bash")
-	   (shell-command-switch . "-c"))
-	  (tramp-connection-local-default-system-profile
-	   (path-separator . ":")
-	   (null-device . "/dev/null"))))
+   '((tramp-connection-local-darwin-ps-profile
+	  (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
+	  (tramp-process-attributes-ps-format
+	   (pid . number)
+	   (euid . number)
+	   (user . string)
+	   (egid . number)
+	   (comm . 52)
+	   (state . 5)
+	   (ppid . number)
+	   (pgrp . number)
+	   (sess . number)
+	   (ttname . string)
+	   (tpgid . number)
+	   (minflt . number)
+	   (majflt . number)
+	   (time . tramp-ps-time)
+	   (pri . number)
+	   (nice . number)
+	   (vsize . number)
+	   (rss . number)
+	   (etime . tramp-ps-time)
+	   (pcpu . number)
+	   (pmem . number)
+	   (args)))
+	 (tramp-connection-local-busybox-ps-profile
+	  (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
+	  (tramp-process-attributes-ps-format
+	   (pid . number)
+	   (user . string)
+	   (group . string)
+	   (comm . 52)
+	   (state . 5)
+	   (ppid . number)
+	   (pgrp . number)
+	   (ttname . string)
+	   (time . tramp-ps-time)
+	   (nice . number)
+	   (etime . tramp-ps-time)
+	   (args)))
+	 (tramp-connection-local-bsd-ps-profile
+	  (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
+	  (tramp-process-attributes-ps-format
+	   (pid . number)
+	   (euid . number)
+	   (user . string)
+	   (egid . number)
+	   (group . string)
+	   (comm . 52)
+	   (state . string)
+	   (ppid . number)
+	   (pgrp . number)
+	   (sess . number)
+	   (ttname . string)
+	   (tpgid . number)
+	   (minflt . number)
+	   (majflt . number)
+	   (time . tramp-ps-time)
+	   (pri . number)
+	   (nice . number)
+	   (vsize . number)
+	   (rss . number)
+	   (etime . number)
+	   (pcpu . number)
+	   (pmem . number)
+	   (args)))
+	 (tramp-connection-local-default-shell-profile
+	  (shell-file-name . "/bin/bash")
+	  (shell-command-switch . "-c"))
+	 (tramp-connection-local-default-system-profile
+	  (path-separator . ":")
+	  (null-device . "/dev/null"))))
  )
 
 (provide 'init)
