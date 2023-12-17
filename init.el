@@ -423,16 +423,10 @@
   (require 'pyvenv)
   (add-hook 'python-ts-mode-hook 'anaconda-mode))
 
-(use-package company-anaconda
-  :ensure t
-  :config
-  (eval-after-load "company"
-	'(add-to-list 'company-backends '(company-anaconda :with company-capf))))
-
 (use-package highlight-indent-guides
   :ensure t
   :config
-  (add-hook 'python-mode-hook 'highlight-indent-guides-mode)
+  (add-hook 'python-ts-mode-hook 'highlight-indent-guides-mode)
   (setq highlight-indent-guides-method 'character))
 
 ;; (use-package elpy
