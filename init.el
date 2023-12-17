@@ -8,7 +8,8 @@
 ;;; Code:
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 						 ("org"	  . "https://orgmode.org/elpa/")
-						 ("elpa"  . "https://elpa.gnu.org/packages/")))
+						 ("elpa"  . "https://elpa.gnu.org/packages/")
+						 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 ;; Constants.
 (defconst --emacs-start-time (current-time))
@@ -117,7 +118,6 @@
 (electric-indent-mode 1)
 
 ;; Save hooks
-(add-hook 'before-save-hook 'lsp-format-buffer)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; Tabs vs Spaces
@@ -221,8 +221,13 @@
   (setq which-key-idle-delay 1.05))
 
 ;; Treesitter
-(use-package tree-sitter :ensure t :config (global-tree-sitter-mode) :hook (tree-sitter-mode . tree-sitter-hl-mode))
-(use-package tree-sitter-langs :ensure t :after tree-sitter)
+;; (use-package tree-sitter :ensure t :config (global-tree-sitter-mode) :hook (tree-sitter-mode . tree-sitter-hl-mode))
+;; (use-package tree-sitter-langs :ensure t :after tree-sitter)
+
+(use-package treesit-auto
+  :demand t
+  :ensure t
+  :config (global-treesit-auto-mode))
 
 ;; Dim the inactive buffers
 (use-package dimmer
@@ -402,11 +407,39 @@
 ;; Python
 (require 'python)
 (setq python-indent-offset 2)
-(use-package elpy
+(use-package python-black
   :ensure t
-  :defer t
-  :init
-  (advice-add 'python-mode :before 'elpy-enable))
+  :bind (("C-c b" . python-black-buffer)))
+
+(use-package pyvenv
+  :ensure t
+  :config
+  (pyvenv-mode 1))
+
+(use-package anaconda-mode
+  :ensure t
+  :bind (("C-c C-x" . next-error))
+  :config
+  (require 'pyvenv)
+  (add-hook 'python-ts-mode-hook 'anaconda-mode))
+
+(use-package company-anaconda
+  :ensure t
+  :config
+  (eval-after-load "company"
+	'(add-to-list 'company-backends '(company-anaconda :with company-capf))))
+
+(use-package highlight-indent-guides
+  :ensure t
+  :config
+  (add-hook 'python-mode-hook 'highlight-indent-guides-mode)
+  (setq highlight-indent-guides-method 'character))
+
+;; (use-package elpy
+;;   :ensure t
+;;   :defer t
+;;   :init
+;;   (advice-add 'python-mode :before 'elpy-enable))
 
 ;;;; Corfu
 (use-package corfu
@@ -491,22 +524,39 @@
 (use-package eglot :ensure t)
 (use-package eglot-java :ensure t :after eglot)
 
+(add-hook 'prog-mode-hook 'flymake-mode)
+(add-hook 'prog-mode-hook 'corfu-mode)
+
 (define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
 
-(add-hook 'java-mode-hook 'eglot-ensure)
-(add-hook 'java-mode-hook 'eglot-java-mode)
-(add-hook 'java-mode-hook 'corfu-mode)
+;;(add-hook 'java-mode-hook 'eglot-ensure)
+;;(add-hook 'java-mode-hook 'eglot-java-mode)
+;;(add-hook 'java-mode-hook 'corfu-mode)
+(add-hook 'java-ts-mode-hook 'eglot-ensure)
+(add-hook 'java-ts-mode-hook 'eglot-java-mode)
+(add-hook 'java-ts-mode-hook 'corfu-mode)
 
-(add-hook 'php-mode 'eglot-ensure)
-(add-hook 'c-mode 'eglot-ensure)
-(add-hook 'sh-mode 'eglot-ensure)
-(add-hook 'shell-mode 'eglot-ensure)
-(add-hook 'css-mode 'eglot-ensure)
-(add-hook 'json-mode 'eglot-ensure)
-(add-hook 'js-mode 'eglot-ensure)
-(add-hook 'perl-mode 'eglot-ensure)
-(add-hook 'python-mode 'eglot-ensure)
-(add-hook 'yaml-mode 'eglot-ensure)
+;; (add-hook 'php-mode 'eglot-ensure)
+;; (add-hook 'c-mode 'eglot-ensure)
+;; (add-hook 'sh-mode 'eglot-ensure)
+;; (add-hook 'shell-mode 'eglot-ensure)
+;; (add-hook 'css-mode 'eglot-ensure)
+;; (add-hook 'json-mode 'eglot-ensure)
+;; (add-hook 'js-mode 'eglot-ensure)
+;; (add-hook 'perl-mode 'eglot-ensure)
+;; (add-hook 'python-mode 'eglot-ensure)
+;; (add-hook 'yaml-mode 'eglot-ensure)
+
+(add-hook 'php-ts-mode 'eglot-ensure)
+(add-hook 'c-ts-mode 'eglot-ensure)
+(add-hook 'sh-ts-mode 'eglot-ensure)
+(add-hook 'shell-ts-mode 'eglot-ensure)
+(add-hook 'css-ts-mode 'eglot-ensure)
+(add-hook 'json-ts-mode 'eglot-ensure)
+(add-hook 'js-ts-mode 'eglot-ensure)
+(add-hook 'perl-ts-mode 'eglot-ensure)
+(add-hook 'python-ts-mode 'eglot-ensure)
+(add-hook 'yaml-ts-mode 'eglot-ensure)
 
 (use-package hydra)
 
@@ -522,6 +572,12 @@
 (use-package vertico :init (vertico-mode)
   (setq vertico-resize -1)
   (setq vertico-cycle t))
+
+;; Improve directory navigation
+(with-eval-after-load 'vertico
+  (define-key vertico-map (kbd "RET") #'vertico-directory-enter)
+  (define-key vertico-map (kbd "DEL") #'vertico-directory-delete-word)
+  (define-key vertico-map (kbd "M-d") #'vertico-directory-delete-char))
 
 ;; Extra project stuff
 (setq project-vc-extra-root-markers '(".project.el"))
@@ -699,11 +755,11 @@
   (embark-collect-mode . consult-preview-at-point-mode))
 
 ;;; Ansi colors in compilation buffer
-(require 'xterm-color)
-(setq compilation-environment '("TERM=xterm-256color"))
-(defun my/advice-compilation-filter (f proc string)
-  (funcall f proc (xterm-color-filter string)))
-(advice-add 'compilation-filter :around #'my/advice-compilation-filter)
+;; (require 'xterm-color)
+;; (setq compilation-environment '("TERM=xterm-256color"))
+;; (defun my/advice-compilation-filter (f proc string)
+;;   (funcall f proc (xterm-color-filter string)))
+;; (advice-add 'compilation-filter :around #'my/advice-compilation-filter)
 
 ;; Set Java VM for windows
 (when (eq system-type 'windows-nt)
