@@ -21,25 +21,25 @@
 (defconst --auto-save-dir (concat user-emacs-directory "auto-save/"))
 
 ;; Straight bootstrap
-(setq straight-repository-branch "develop")
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 6))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+;; (setq straight-repository-branch "develop")
+;; (defvar bootstrap-version)
+;; (let ((bootstrap-file
+;;        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+;;       (bootstrap-version 6))
+;;   (unless (file-exists-p bootstrap-file)
+;;     (with-current-buffer
+;;         (url-retrieve-synchronously
+;;          "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+;;          'silent 'inhibit-cookies)
+;;       (goto-char (point-max))
+;;       (eval-print-last-sexp)))
+;;   (load bootstrap-file nil 'nomessage))
 
-(straight-use-package 'use-package)
-;; Configure use-package to use straight.el by default
-(use-package straight
-  :custom
-  (straight-use-package-by-default t))
+;; (straight-use-package 'use-package)
+;; ;; Configure use-package to use straight.el by default
+;; (use-package straight
+;;   :custom
+;;   (straight-use-package-by-default t))
 
 (package-initialize)				;; Initializes the package system and prepares it to be used
 (unless package-archive-contents	 ; Unless a package archive already exists,
@@ -55,6 +55,9 @@
 (setq lexical-binding t)
 (setq org-default-notes-dir "~/workspace/notes/")
 (setq frame-resize-pixelwise t)
+
+;; Garbage collect at the end of the startup
+(add-hook 'after-init-hook #'garbage-collect t)
 
 ;; package update configuration
 (use-package auto-package-update
@@ -107,9 +110,13 @@
 
 (save-place-mode)
 
+;; Ediff configuration
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+(setq ediff-split-window-function 'split-window-horizontally)
+
 ;; Parenthesis
 (show-paren-mode 1)
-(use-package smartparens :ensure t :config (smartparens-mode))
+(use-package smartparens :ensure t :config (smartparens-mode t))
 ;; Automatically add ending brackets and braces
 (electric-pair-mode 1)
 ;; Make return key also do indent in the current buffer
@@ -198,6 +205,8 @@
 
 ;; Set initial mode
 (setq initial-major-mode 'org-mode)
+(setq org-use-sub-superscripts nil)
+(setq org-export-with-sub-superscripts nil)
 
 ;; Set fonts (for linux and windows)
 (cond
@@ -227,7 +236,8 @@
 (use-package treesit-auto
   :demand t
   :ensure t
-  :config (global-treesit-auto-mode))
+  :custom (treesit-auto-install 'prompt)
+  :config (treesit-auto-add-to-auto-mode-alist 'all)(global-treesit-auto-mode))
 
 ;; Dim the inactive buffers
 (use-package dimmer
@@ -285,10 +295,10 @@
   (defun zero-width () (interactive) (insert "​")))
 
 (setq org-agenda-prefix-format
-	  '((agenda . " %i %-24c%?-18t% s")
-		(todo   . " %i %-24c%?-18t% s")
-		(tags   . " %i %-24c%?-18t% s")
-		(search . " %i %-24c%?-18t% s")))
+	  '((agenda . " %i %-36c%?-18t% s")
+		(todo   . " %i %-36c%?-18t% s")
+		(tags   . " %i %-36c%?-18t% s")
+		(search . " %i %-36c%?-18t% s")))
 
 (setq org-agenda-custom-commands
 	  '(("d" "Dashboard"
@@ -315,6 +325,7 @@
 (setq isearch-lazy-count t)
 
 (use-package eldoc :config (global-eldoc-mode))
+(setq eldoc-echo-area-use-multiline-p nil)
 
 ;; RIPgrep and rg
 (use-package ripgrep)
@@ -373,67 +384,6 @@
 	 (unknown . "?")
 	 (ignored . "i"))))
 
-;; CSV mode ;;
-(use-package csv-mode :mode ("\\.csv$" . csv-mode))
-
-;;; Json ;;;;
-(use-package json-mode
-  :mode ("\\.json$" . json-mode))
-
-;; PHP
-(use-package php-mode)
-
-;; CSS
-(require 'css-mode)
-(setq-default css-indent-offset 4)
-
-(setq auto-mode-alist
-	  (append '(("\\.min.css$" . fundamental-mode) ;; Faster to load.
-				("\\.css$" . css-mode)
-				("\\.style$" . css-mode))
-			  auto-mode-alist))
-
-;; Markdown
-(use-package markdown-mode
-  :mode (("\\.markdown\\'" . markdown-mode)
-		 ("\\.md\\'" . markdown-mode))
-  :config
-  ;; Turn off auto-fill-mode beacuse markdown is sensitive about newlines.
-  (add-hook 'markdown-mode-hook
-			(lambda ()
-			  (auto-fill-mode 0)
-			  (visual-line-mode t))))
-
-;; Python
-(require 'python)
-(setq python-indent-offset 2)
-(use-package python-black
-  :ensure t
-  :bind (("C-c b" . python-black-buffer)))
-
-(use-package pyvenv
-  :ensure t
-  :config
-  (pyvenv-mode 1))
-
-(use-package anaconda-mode
-  :ensure t
-  :bind (("C-c C-x" . next-error))
-  :config
-  (require 'pyvenv)
-  (add-hook 'python-ts-mode-hook 'anaconda-mode))
-
-(use-package highlight-indent-guides
-  :ensure t
-  :config
-  (add-hook 'python-ts-mode-hook 'highlight-indent-guides-mode)
-  (setq highlight-indent-guides-method 'character))
-
-;; (use-package elpy
-;;   :ensure t
-;;   :defer t
-;;   :init
-;;   (advice-add 'python-mode :before 'elpy-enable))
 
 ;;;; Corfu
 (use-package corfu
@@ -461,7 +411,7 @@
   ;; This is recommended since Dabbrev can be used globally (M-/).
   ;; See also `corfu-excluded-modes'.
   :init
-  (global-corfu-mode))
+  (global-corfu-mode t))
 
 ;; A few more useful configurations...
 (use-package emacs
@@ -551,6 +501,7 @@
 (add-hook 'perl-ts-mode 'eglot-ensure)
 (add-hook 'python-ts-mode 'eglot-ensure)
 (add-hook 'yaml-ts-mode 'eglot-ensure)
+(add-hook 'rust-ts-mode 'eglot-ensure)
 
 (use-package hydra)
 
@@ -566,12 +517,6 @@
 (use-package vertico :init (vertico-mode)
   (setq vertico-resize -1)
   (setq vertico-cycle t))
-
-;; Improve directory navigation
-(with-eval-after-load 'vertico
-  (define-key vertico-map (kbd "RET") #'vertico-directory-enter)
-  (define-key vertico-map (kbd "DEL") #'vertico-directory-delete-word)
-  (define-key vertico-map (kbd "M-d") #'vertico-directory-delete-char))
 
 ;; Extra project stuff
 (setq project-vc-extra-root-markers '(".project.el"))
@@ -599,7 +544,7 @@
 		 ("<help> a" . consult-apropos)			   ;; orig. apropos-command
 		 ;; M-g bindings (goto-map)
 		 ("M-g e" . consult-compile-error)
-
+		 ("M-g f" . consult-flycheck)
 		 ("M-g g" . consult-goto-line)			   ;; orig. goto-line
 		 ("M-g M-g" . consult-goto-line)		   ;; orig. goto-line
 		 ("M-g o" . consult-outline)			   ;; Alternative: consult-org-heading
@@ -692,6 +637,7 @@
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
   )
 
+(use-package consult-flycheck :after consult)
 (use-package consult-ls-git :after consult)
 (use-package consult-eglot :after consult)
 (use-package consult-yasnippet :after consult)
@@ -748,23 +694,93 @@
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
-;;; Ansi colors in compilation buffer
-;; (require 'xterm-color)
-;; (setq compilation-environment '("TERM=xterm-256color"))
-;; (defun my/advice-compilation-filter (f proc string)
-;;   (funcall f proc (xterm-color-filter string)))
-;; (advice-add 'compilation-filter :around #'my/advice-compilation-filter)
+;; CSV mode ;;
+(use-package csv-mode :mode ("\\.csv$" . csv-mode))
+
+;;; Json ;;;;
+(use-package json-mode
+  :mode ("\\.json$" . json-mode))
+
+;; PHP
+(use-package php-mode)
+
+;; CSS
+(require 'css-mode)
+(setq-default css-indent-offset 4)
+
+(setq auto-mode-alist
+	  (append '(("\\.min.css$" . fundamental-mode) ;; Faster to load.
+				("\\.css$" . css-mode)
+				("\\.style$" . css-mode))
+			  auto-mode-alist))
+
+;; Markdown
+(use-package markdown-mode
+  :mode (("\\.markdown\\'" . markdown-mode)
+		 ("\\.md\\'" . markdown-mode))
+  :config
+  ;; Turn off auto-fill-mode beacuse markdown is sensitive about newlines.
+  (add-hook 'markdown-mode-hook
+			(lambda ()
+			  (auto-fill-mode 0)
+			  (visual-line-mode t))))
+
+;; Python
+(require 'python)
+(setq python-indent-offset 2)
+(use-package python-black
+  :ensure t
+  :bind (("C-c b" . python-black-buffer)))
+
+(use-package pyvenv
+  :ensure t
+  :config
+  (pyvenv-mode 1))
+
+(use-package anaconda-mode
+  :ensure t
+  :bind (("C-c C-x" . next-error))
+  :config
+  (require 'pyvenv)
+  (add-hook 'python-ts-mode-hook 'anaconda-mode))
+
+(use-package highlight-indent-guides
+  :ensure t
+  :config
+  (add-hook 'python-ts-mode-hook 'highlight-indent-guides-mode)
+  (setq highlight-indent-guides-method 'character))
+
+;; (use-package elpy
+;;   :ensure t
+;;   :defer t
+;;   :init
+;;   (advice-add 'python-mode :before 'elpy-enable))
+
+;; Rust Configuration
+(use-package rustic
+  :ensure t
+  :config
+  (setq rustic-format-on-save t))
+
+(use-package cargo-mode :ensure t)
+(add-to-list 'eglot-server-programs
+             '((rust-ts-mode rust-mode) .
+               ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
+
+(add-hook 'rust-mode-hook 'eglot-ensure)
 
 ;; Set Java VM for windows
 (when (eq system-type 'windows-nt)
   (setenv "JAVA_HOME" "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\")
-  (setq lsp-java-java-path "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\bin\\java"))
+  (setq lsp-java-java-path "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\bin\\java")
+  (setenv "PATH" (concat "c:\\Program Files\\Git\\usr\bin;" (getenv "PATH"))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-file-apps '((auto-mode . emacs) (directory . emacs) ("\\.x?html?\\'" . default) ("\\.pdf\\'" . default) ("\\.docx?\\'" . "open %s") ("\\.xlsm?\\'" . "open %s")))
  '(connection-local-criteria-alist
    '(((:application tramp)
 	  tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))

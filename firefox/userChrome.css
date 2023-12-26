@@ -25,10 +25,13 @@
 }
 
 .tabbrowser-tab {
+	display: none;
+	visibility: collapse;
+}
+
+.tabbrowser-tab {
     font-family: Roboto !important;
     font-size: 12px !important;
-    height: 18px !important;
-    min-height: 14px !important;
 }
 
 .tabbrowser-tab[selected] {
