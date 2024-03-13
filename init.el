@@ -20,27 +20,6 @@
 (defconst --user-cache-dir (concat user-emacs-directory "cache/"))
 (defconst --auto-save-dir (concat user-emacs-directory "auto-save/"))
 
-;; Straight bootstrap
-;; (setq straight-repository-branch "develop")
-;; (defvar bootstrap-version)
-;; (let ((bootstrap-file
-;;        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-;;       (bootstrap-version 6))
-;;   (unless (file-exists-p bootstrap-file)
-;;     (with-current-buffer
-;;         (url-retrieve-synchronously
-;;          "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-;;          'silent 'inhibit-cookies)
-;;       (goto-char (point-max))
-;;       (eval-print-last-sexp)))
-;;   (load bootstrap-file nil 'nomessage))
-
-;; (straight-use-package 'use-package)
-;; ;; Configure use-package to use straight.el by default
-;; (use-package straight
-;;   :custom
-;;   (straight-use-package-by-default t))
-
 (package-initialize)				;; Initializes the package system and prepares it to be used
 (unless package-archive-contents	 ; Unless a package archive already exists,
   (package-refresh-contents))		 ; Refresh package contents so that Emacs knows which packages to load
@@ -55,6 +34,8 @@
 (setq lexical-binding t)
 (setq org-default-notes-dir "~/workspace/notes/")
 (setq frame-resize-pixelwise t)
+
+(setq package-native-compile t)
 
 ;; Garbage collect at the end of the startup
 (add-hook 'after-init-hook #'garbage-collect t)
@@ -91,6 +72,7 @@
 (setq initial-scratch-message nil)
 (setq sentence-end-double-space nil)
 (setq-default cursor-type 'bar)
+(prefer-coding-system 'utf-8-unix)
 
 (setq use-dialog-box nil)
 (setq kill-do-not-save-duplicates t)
@@ -110,13 +92,16 @@
 
 (save-place-mode)
 
+;; Winner mode
+(winner-mode t)
+
 ;; Ediff configuration
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 (setq ediff-split-window-function 'split-window-horizontally)
 
 ;; Parenthesis
 (show-paren-mode 1)
-(use-package smartparens :ensure t :config (smartparens-mode t))
+(use-package smartparens :ensure t :diminish smartparens-mode :config (smartparens-mode t))
 ;; Automatically add ending brackets and braces
 (electric-pair-mode 1)
 ;; Make return key also do indent in the current buffer
@@ -164,6 +149,7 @@
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-0") 'text-scale-adjust)
 
+(global-set-key (kbd "C-<tab>") 'tab-next)
 ;; VLF
 (use-package vlf)
 
@@ -172,9 +158,10 @@
 ;; Set completion-styles
 (setq completion-styles '(initials flex partial-completion basic orderless))
 
-;; Windmove configuration
-(windmove-default-keybindings 'meta)
-(setq windmove-wrap-around t)
+;; Ace Window
+(use-package ace-window)
+(global-set-key (kbd "M-o") 'ace-window)
+(setq aw-keys '(?a ?h ?e ?t ?i ?s ?w ?n))
 
 ;; Revert the buffer automatically if it changes in the filesystem
 (global-auto-revert-mode t)
@@ -219,7 +206,7 @@
 	(set-face-attribute 'default nil :font "Consolas-10.5"))))
 
 ;; Try to fix the mode line
-(use-package diminish :config (diminish 'visual-line-mode))
+(use-package diminish :ensure t :config (diminish 'visual-line-mode))
 
 ;; Making it easier to discover Emacs key presses.
 (use-package which-key
@@ -230,9 +217,6 @@
   (setq which-key-idle-delay 1.05))
 
 ;; Treesitter
-;; (use-package tree-sitter :ensure t :config (global-tree-sitter-mode) :hook (tree-sitter-mode . tree-sitter-hl-mode))
-;; (use-package tree-sitter-langs :ensure t :after tree-sitter)
-
 (use-package treesit-auto
   :demand t
   :ensure t
@@ -254,7 +238,7 @@
 (global-set-key (kbd "C-c s") 'crux-create-scratch-buffer)
 
 ;; Apheleia
-(use-package apheleia :ensure t :config (apheleia-global-mode +1))
+(use-package apheleia :ensure t :diminish :config (apheleia-global-mode +1))
 
 ;; Tramp
 (use-package tramp)
@@ -287,6 +271,8 @@
   (org-agenda-files '("~/workspace/notes/"))
   (org-startup-folded 'content)
   (org-startup-indented t)
+  (org-toggle-pretty-entities nil)
+  (org-export-with-sub-superscripts nil)
   (org-todo-keywords '((sequence "TODO" "WORKING" "WAITING" "|" "DONE" "CANCELLED")))
 
   :config
@@ -314,9 +300,6 @@
 		  ))))
 
 (put 'erase-buffer 'disabled nil)
-
-;; Org-roam configuration
-(use-package org-roam :ensure t)
 
 ;; Fuzzy Search
 (setq search-whitespace-regexp ".*")
@@ -449,8 +432,13 @@
 (global-set-key (kbd "C-;") 'iedit-dwim)
 
 ;; yasnippet configuration
-(use-package yasnippet :config (yas-global-mode t))
-(use-package yasnippet-snippets)
+(use-package yasnippet :ensure t :diminish yas-minor-mode :config (yas-global-mode t))
+(use-package yasnippet-snippets :diminish yas-minor-mode)
+
+;; Flymake mode
+(with-eval-after-load "flymake"
+  (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
+  (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error))
 
 ;;;;; Treemacs ;;;;;;
 (use-package treemacs
@@ -465,31 +453,14 @@
 (use-package dired-git-info :ensure t :after dired :commands (dired-git-info-mode))
 
 ;; Eglot
-(use-package eglot :ensure t)
-(use-package eglot-java :ensure t :after eglot)
-
 (add-hook 'prog-mode-hook 'flymake-mode)
 (add-hook 'prog-mode-hook 'corfu-mode)
 
-(define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
+;;(define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
 
-;;(add-hook 'java-mode-hook 'eglot-ensure)
-;;(add-hook 'java-mode-hook 'eglot-java-mode)
-;;(add-hook 'java-mode-hook 'corfu-mode)
 (add-hook 'java-ts-mode-hook 'eglot-ensure)
 (add-hook 'java-ts-mode-hook 'eglot-java-mode)
 (add-hook 'java-ts-mode-hook 'corfu-mode)
-
-;; (add-hook 'php-mode 'eglot-ensure)
-;; (add-hook 'c-mode 'eglot-ensure)
-;; (add-hook 'sh-mode 'eglot-ensure)
-;; (add-hook 'shell-mode 'eglot-ensure)
-;; (add-hook 'css-mode 'eglot-ensure)
-;; (add-hook 'json-mode 'eglot-ensure)
-;; (add-hook 'js-mode 'eglot-ensure)
-;; (add-hook 'perl-mode 'eglot-ensure)
-;; (add-hook 'python-mode 'eglot-ensure)
-;; (add-hook 'yaml-mode 'eglot-ensure)
 
 (add-hook 'php-ts-mode 'eglot-ensure)
 (add-hook 'c-ts-mode 'eglot-ensure)
@@ -750,12 +721,6 @@
   (add-hook 'python-ts-mode-hook 'highlight-indent-guides-mode)
   (setq highlight-indent-guides-method 'character))
 
-;; (use-package elpy
-;;   :ensure t
-;;   :defer t
-;;   :init
-;;   (advice-add 'python-mode :before 'elpy-enable))
-
 ;; Rust Configuration
 (use-package rustic
   :ensure t
@@ -773,7 +738,7 @@
 (when (eq system-type 'windows-nt)
   (setenv "JAVA_HOME" "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\")
   (setq lsp-java-java-path "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\bin\\java")
-  (setenv "PATH" (concat "c:\\Program Files\\Git\\usr\bin;" (getenv "PATH"))))
+  (setenv "PATH" (concat "c:\\Program Files\\Git\\usr\\bin;" (getenv "PATH"))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
