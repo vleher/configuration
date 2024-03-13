@@ -35,7 +35,9 @@
 (setq org-default-notes-dir "~/workspace/notes/")
 (setq frame-resize-pixelwise t)
 
+(setq debug-on-error t)
 (setq package-native-compile t)
+(setq native-comp-speed 3)
 
 ;; Garbage collect at the end of the startup
 (add-hook 'after-init-hook #'garbage-collect t)
@@ -58,6 +60,13 @@
 ;; Theme configuration
 (use-package nord-theme :ensure t :config (setq nord-region-highlight "frost"))
 (load-theme 'nord t)
+
+;; Try to fix the mode line
+(use-package diminish :ensure t :config (diminish 'visual-line-mode))
+
+;; Garbage Collection
+(use-package gcmh :ensure t :diminish)
+(gcmh-mode 1)
 
 ;; Configure the Emacs Frame
 (setq inhibit-startup-screen t)
@@ -98,6 +107,12 @@
 ;; Ediff configuration
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 (setq ediff-split-window-function 'split-window-horizontally)
+
+;; Windows Hacks
+(use-package vc-defer
+  :ensure t
+  :diminish vc-defer-mode
+  :config (add-to-list 'vc-defer-backends 'git) (vc-defer-mode))
 
 ;; Parenthesis
 (show-paren-mode 1)
@@ -204,9 +219,6 @@
  ((find-font (font-spec :name "Consolas"))
   (progn
 	(set-face-attribute 'default nil :font "Consolas-10.5"))))
-
-;; Try to fix the mode line
-(use-package diminish :ensure t :config (diminish 'visual-line-mode))
 
 ;; Making it easier to discover Emacs key presses.
 (use-package which-key
@@ -411,26 +423,6 @@
   ;; `completion-at-point' is often bound to M-TAB.
   (setq tab-always-indent 'complete))
 
-;; IEdit
-(use-package iedit)
-(defun iedit-dwim (arg)
-  "Starts iedit but uses \\[narrow-to-defun] to limit its scope."
-  (interactive "P")
-  (if arg
-      (iedit-mode)
-    (save-excursion
-      (save-restriction
-        (widen)
-        ;; this function determines the scope of `iedit-start'.
-        (if iedit-mode
-            (iedit-done)
-          ;; `current-word' can of course be replaced by other
-          ;; functions.
-          (narrow-to-defun)
-          (iedit-start (current-word) (point-min) (point-max)))))))
-
-(global-set-key (kbd "C-;") 'iedit-dwim)
-
 ;; yasnippet configuration
 (use-package yasnippet :ensure t :diminish yas-minor-mode :config (yas-global-mode t))
 (use-package yasnippet-snippets :diminish yas-minor-mode)
@@ -452,28 +444,6 @@
 ;; Git Info in Dired
 (use-package dired-git-info :ensure t :after dired :commands (dired-git-info-mode))
 
-;; Eglot
-(add-hook 'prog-mode-hook 'flymake-mode)
-(add-hook 'prog-mode-hook 'corfu-mode)
-
-;;(define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
-
-(add-hook 'java-ts-mode-hook 'eglot-ensure)
-(add-hook 'java-ts-mode-hook 'eglot-java-mode)
-(add-hook 'java-ts-mode-hook 'corfu-mode)
-
-(add-hook 'php-ts-mode 'eglot-ensure)
-(add-hook 'c-ts-mode 'eglot-ensure)
-(add-hook 'sh-ts-mode 'eglot-ensure)
-(add-hook 'shell-ts-mode 'eglot-ensure)
-(add-hook 'css-ts-mode 'eglot-ensure)
-(add-hook 'json-ts-mode 'eglot-ensure)
-(add-hook 'js-ts-mode 'eglot-ensure)
-(add-hook 'perl-ts-mode 'eglot-ensure)
-(add-hook 'python-ts-mode 'eglot-ensure)
-(add-hook 'yaml-ts-mode 'eglot-ensure)
-(add-hook 'rust-ts-mode 'eglot-ensure)
-
 (use-package hydra)
 
 ;;;;; Vertico and Completion ;;;;;
@@ -491,6 +461,7 @@
 
 ;; Extra project stuff
 (setq project-vc-extra-root-markers '(".project.el"))
+(global-set-key (kbd "C-x C-b") 'ibuffer-jump)
 
 ;; Configuration for Consult
 (use-package consult
@@ -515,7 +486,6 @@
 		 ("<help> a" . consult-apropos)			   ;; orig. apropos-command
 		 ;; M-g bindings (goto-map)
 		 ("M-g e" . consult-compile-error)
-		 ("M-g f" . consult-flycheck)
 		 ("M-g g" . consult-goto-line)			   ;; orig. goto-line
 		 ("M-g M-g" . consult-goto-line)		   ;; orig. goto-line
 		 ("M-g o" . consult-outline)			   ;; Alternative: consult-org-heading
@@ -608,7 +578,6 @@
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
   )
 
-(use-package consult-flycheck :after consult)
 (use-package consult-ls-git :after consult)
 (use-package consult-eglot :after consult)
 (use-package consult-yasnippet :after consult)
@@ -675,6 +644,14 @@
 ;; PHP
 (use-package php-mode)
 
+;; Java mode
+(use-package eglot-java :ensure t)
+(with-eval-after-load 'eglot-java
+  (define-key eglot-java-mode-map (kbd "C-c l n") #'eglot-java-file-new)
+  (define-key eglot-java-mode-map (kbd "C-c l x") #'eglot-java-run-main)
+  (define-key eglot-java-mode-map (kbd "C-c l t") #'eglot-java-run-test)
+  (define-key eglot-java-mode-map (kbd "C-c l r") #'eglot-rename))
+
 ;; CSS
 (require 'css-mode)
 (setq-default css-indent-offset 4)
@@ -725,14 +702,39 @@
 (use-package rustic
   :ensure t
   :config
-  (setq rustic-format-on-save t))
+  (setq rustic-format-on-save t)
+  (setq rustic-lsp-client 'eglot))
 
 (use-package cargo-mode :ensure t)
 (add-to-list 'eglot-server-programs
              '((rust-ts-mode rust-mode) .
                ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
 
+(remove-hook 'rustic-mode-hook 'flycheck-mode)
 (add-hook 'rust-mode-hook 'eglot-ensure)
+
+;; Eglot
+(add-hook 'prog-mode-hook 'flymake-mode)
+(add-hook 'prog-mode-hook 'corfu-mode)
+
+(add-hook 'java-ts-mode-hook 'eglot-ensure)
+(add-hook 'java-ts-mode-hook 'eglot-java-mode)
+(add-hook 'java-ts-mode-hook 'corfu-mode)
+
+(add-hook 'php-ts-mode 'eglot-ensure)
+(add-hook 'c-ts-mode 'eglot-ensure)
+(add-hook 'sh-ts-mode 'eglot-ensure)
+(add-hook 'shell-ts-mode 'eglot-ensure)
+(add-hook 'css-ts-mode 'eglot-ensure)
+(add-hook 'json-ts-mode 'eglot-ensure)
+(add-hook 'js-ts-mode 'eglot-ensure)
+(add-hook 'perl-ts-mode 'eglot-ensure)
+(add-hook 'python-ts-mode 'eglot-ensure)
+(add-hook 'yaml-ts-mode 'eglot-ensure)
+(add-hook 'rust-ts-mode 'eglot-ensure)
+
+(define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
+(define-key eglot-mode-map (kbd "C-c l r") 'eglot-rename)
 
 ;; Set Java VM for windows
 (when (eq system-type 'windows-nt)
