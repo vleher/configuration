@@ -26,7 +26,11 @@
 
 ;; Initialize use-package on non-linux platforms
 (unless (package-installed-p 'use-package)		  ; Unless "use-package" is installed, install "use-package"
+  (package-refresh-contents)
   (package-install 'use-package))
+(eval-and-compile
+  (setq use-package-always-ensure t
+		use-package-expand-minimally t))
 (require 'use-package)							  ; Once it's installed, we load it using require
 ;; Make sure packages are downloaded and installed before they are run
 ;; also frees you from having to put :ensure t after installing EVERY PACKAGE.
@@ -35,7 +39,7 @@
 (setq org-default-notes-dir "~/workspace/notes/")
 (setq frame-resize-pixelwise t)
 
-(setq debug-on-error t)
+;;(setq debug-on-error t)
 (setq package-native-compile t)
 (setq native-comp-speed 3)
 
@@ -174,9 +178,10 @@
 (setq completion-styles '(initials flex partial-completion basic orderless))
 
 ;; Ace Window
-(use-package ace-window)
+(use-package ace-window :ensure t)
 (global-set-key (kbd "M-o") 'ace-window)
 (setq aw-keys '(?a ?h ?e ?t ?i ?s ?w ?n))
+(setq aw-dispatch-always t)
 
 ;; Revert the buffer automatically if it changes in the filesystem
 (global-auto-revert-mode t)
@@ -455,9 +460,23 @@
 (use-package marginalia
   :config	(marginalia-mode +1))
 
-(use-package vertico :init (vertico-mode)
+(use-package vertico
+  :init
+  (vertico-mode)
   (setq vertico-resize -1)
   (setq vertico-cycle t))
+(vertico-reverse-mode t)
+(setq vertico-multiform-commands
+      '((consult-line buffer)
+        (consult-imenu buffer)
+		(consult-ripgrep buffer)))
+(setq vertico-multiform-categories
+      '((consult-grep buffer)
+		(imenu buffer)
+		(occur buffer)
+		(symbol (vertico-sort-function . vertico-sort-alpha))))
+
+(vertico-multiform-mode)
 
 ;; Extra project stuff
 (setq project-vc-extra-root-markers '(".project.el"))
@@ -611,6 +630,7 @@
 
 ;; Configuration for embark
 (use-package embark
+  :ensure
   :bind
   (("C-." . embark-act)			;; pick some comfortable binding
    ("M-." . embark-dwim)		;; good alternative: M-.
@@ -619,6 +639,14 @@
   ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command)
   :config
+  (define-key embark-file-map     (kbd "o") (my/embark-ace-action find-file))
+  (define-key embark-buffer-map   (kbd "o") (my/embark-ace-action switch-to-buffer))
+
+  (define-key embark-file-map     (kbd "h") (my/embark-split-action find-file split-window-below))
+  (define-key embark-buffer-map   (kbd "h") (my/embark-split-action switch-to-buffer split-window-below))
+
+  (define-key embark-file-map     (kbd "v") (my/embark-split-action find-file split-window-right))
+  (define-key embark-buffer-map   (kbd "v") (my/embark-split-action switch-to-buffer split-window-right))
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
 			   '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
@@ -633,6 +661,37 @@
   ;; auto-updating embark collect buffer
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
+
+(eval-when-compile
+  (defmacro my/embark-ace-action (fn)
+    `(defun ,(intern (concat "my/embark-ace-" (symbol-name fn))) ()
+       (interactive)
+       (with-demoted-errors "%s"
+         (require 'ace-window)
+         (aw-switch-to-window (aw-select nil))
+         (call-interactively (symbol-function ',fn)))))
+
+  (defmacro my/embark-split-action (fn split-type)
+    `(defun ,(intern (concat "my/embark-"
+                             (symbol-name fn)
+                             "-"
+                             (car (last  (split-string
+                                          (symbol-name split-type) "-"))))) ()
+       (interactive)
+       (funcall #',split-type)
+       (call-interactively #',fn))))
+
+
+;; Avy
+(use-package avy)
+(avy-setup-default)
+(global-set-key (kbd "M-s a") 'avy-goto-char-timer)
+
+;; Golden
+(use-package golden-ratio :diminish)
+(golden-ratio-mode 1)
+(setq golden-ratio-auto-scale t)
+(setq golden-ratio-max-width 100)
 
 ;; CSV mode ;;
 (use-package csv-mode :mode ("\\.csv$" . csv-mode))
@@ -747,7 +806,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-file-apps '((auto-mode . emacs) (directory . emacs) ("\\.x?html?\\'" . default) ("\\.pdf\\'" . default) ("\\.docx?\\'" . "open %s") ("\\.xlsm?\\'" . "open %s")))
  '(connection-local-criteria-alist
    '(((:application tramp)
 	  tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
@@ -824,7 +882,15 @@
 	 (tramp-connection-local-default-system-profile
 	  (path-separator . ":")
 	  (null-device . "/dev/null"))))
- )
+ '(org-file-apps
+   '((auto-mode . emacs)
+	 (directory . emacs)
+	 ("\\.x?html?\\'" . default)
+	 ("\\.pdf\\'" . default)
+	 ("\\.docx?\\'" . "open %s")
+	 ("\\.xlsm?\\'" . "open %s")))
+ '(package-selected-packages
+   '(centaur-tabs vc-defer yasnippet-snippets which-key vlf vertico unicode-fonts treesit-auto treemacs-icons-dired smartparens rustic ripgrep rainbow-delimiters pyvenv python-black prescient pkg-info php-mode org-roam orderless nord-theme marginalia magit json-mode iedit htmlize highlight-indent-guides gcmh embark-consult eglot-java dired-git-info dimmer diminish diff-hl csv-mode crux corfu consult-yasnippet consult-ls-git consult-flycheck consult-eglot cargo-mode auto-package-update apheleia anaconda-mode all-the-icons)))
 
 (provide 'init)
 ;;; init.el ends here
