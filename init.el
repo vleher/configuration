@@ -99,9 +99,20 @@
 (column-number-mode t)
 (delete-selection-mode t)
 (size-indication-mode t)
-(global-visual-line-mode t)
 (global-font-lock-mode t)
 (global-hl-line-mode t)
+
+;; Visual Fill Column
+(global-visual-line-mode t)
+(use-package visual-fill-column :ensure t
+  :config
+  (setq-default visual-fill-column-width 164)
+  (setq-default visual-line-fill-column-mode t)
+  (setq-default visual-fill-column-center-text t)
+  (setq-default visual-fill-column-enable-sensible-window-split t)
+  (setq-default visual-fill-column-fringes-outside-margins t) )
+(global-visual-fill-column-mode t)
+
 
 (save-place-mode)
 
@@ -364,7 +375,7 @@
   :diminish auto-revert-mode
   :bind (("C-x g" . #'magit-status))
   :config
-  (defun pt/commit-hook () (set-fill-column 80))
+  (defun pt/commit-hook () (set-fill-column 164))
   (add-hook 'git-commit-setup-hook #'pt/commit-hook)
   (add-to-list 'magit-no-confirm 'stage-all-changes))
 
@@ -481,6 +492,11 @@
 ;;;;; Treemacs ;;;;;;
 (use-package treemacs
   :ensure t
+  :config
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (treemacs-fringe-indicator-mode `always)
+
   :commands (treemacs))
 
 (add-hook 'treemacs-mode-hook (lambda() (display-line-numbers-mode -1)))
@@ -929,7 +945,7 @@
 	 ("\\.docx?\\'" . "open %s")
 	 ("\\.xlsm?\\'" . "open %s")))
  '(package-selected-packages
-   '(cape centaur-tabs vc-defer yasnippet-snippets which-key vlf vertico unicode-fonts treesit-auto treemacs-icons-dired smartparens rustic ripgrep rainbow-delimiters pyvenv python-black prescient pkg-info php-mode org-roam orderless nord-theme marginalia magit json-mode iedit htmlize highlight-indent-guides gcmh embark-consult eglot-java dired-git-info dimmer diminish diff-hl csv-mode crux corfu consult-yasnippet consult-ls-git consult-flycheck consult-eglot cargo-mode auto-package-update apheleia anaconda-mode all-the-icons)))
+   '(visual-fill-column cape vc-defer yasnippet-snippets which-key vlf vertico unicode-fonts treesit-auto treemacs-icons-dired smartparens rustic ripgrep rainbow-delimiters pyvenv python-black prescient pkg-info php-mode org-roam orderless nord-theme marginalia magit json-mode iedit htmlize highlight-indent-guides gcmh embark-consult eglot-java dired-git-info dimmer diminish diff-hl csv-mode crux corfu consult-yasnippet consult-ls-git consult-flycheck consult-eglot cargo-mode auto-package-update apheleia anaconda-mode all-the-icons)))
 
 (provide 'init)
 ;;; init.el ends here
