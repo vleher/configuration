@@ -20,6 +20,8 @@
 (defconst --user-cache-dir (concat user-emacs-directory "cache/"))
 (defconst --auto-save-dir (concat user-emacs-directory "auto-save/"))
 
+(setq package-gnupghome-dir "~/.emacs.d/elpa/gnupg/")
+
 (package-initialize)				;; Initializes the package system and prepares it to be used
 (unless package-archive-contents	 ; Unless a package archive already exists,
   (package-refresh-contents))		 ; Refresh package contents so that Emacs knows which packages to load
@@ -80,7 +82,8 @@
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (setq frame-title-format '("" "[%b] <%f> - Emacs " emacs-version))
-(setq gc-cons-threshold 10000000)
+(setq gc-cons-threshold 100000000)
+(setq read-process-output-max (* 1024 1024))
 (setq ring-bell-function 'ignore)
 (setq initial-scratch-message nil)
 (setq sentence-end-double-space nil)
@@ -106,7 +109,7 @@
 (global-visual-line-mode t)
 (use-package visual-fill-column :ensure t
   :config
-  (setq-default visual-fill-column-width 164)
+  (setq-default visual-fill-column-width 300)
   (setq-default visual-line-fill-column-mode t)
   (setq-default visual-fill-column-center-text t)
   (setq-default visual-fill-column-enable-sensible-window-split t)
@@ -167,7 +170,7 @@
 (setq recentf-max-saved-items 50)
 
 ;; Increase the maximum for eval depth
-(setq max-lisp-eval-depth 10000)
+(setq max-lisp-eval-depth 100000)
 
 ;; Move to first whitespace or begninning of line if none. Pressing again goes to the beginning if
 ;; there was whitespace.
@@ -184,9 +187,15 @@
 (use-package vlf)
 
 ;; Orderless
-(use-package orderless :ensure t)
-;; Set completion-styles
-(setq completion-styles '(initials flex partial-completion basic orderless))
+(use-package orderless :ensure t
+  :init
+  ;; Set completion-styles
+  (setq completion-styles '(initials flex partial-completion basic orderless)
+		completion-category-defaults nil
+		completion-category-overrides nil))
+
+;; Windmove
+(windmove-default-keybindings)
 
 ;; Ace Window
 (use-package ace-window :ensure t)
@@ -234,7 +243,7 @@
   (set-face-attribute 'default nil :font "DejaVu Sans Mono-9.5"))
  ((find-font (font-spec :name "Consolas"))
   (progn
-	(set-face-attribute 'default nil :font "Consolas-10.5"))))
+	(set-face-attribute 'default nil :font "Consolas-10.0"))))
 
 ;; Making it easier to discover Emacs key presses.
 (use-package which-key
@@ -287,7 +296,7 @@
   :custom
   (org-adapt-indentation t)
   (org-indent-mode t)
-  (org-hide-emphasis-markers t)
+  (org-hide-emphasis-markers nil)
   (org-indent-indentation-per-level 5)
   (org-list-description-max-indent 5)
   (org-pretty-entities t)
@@ -299,9 +308,10 @@
   (org-agenda-files '("~/workspace/notes/"))
   (org-startup-folded 'content)
   (org-startup-indented t)
+  (org-startup-with-inline-images t)
   (org-toggle-pretty-entities nil)
   (org-export-with-sub-superscripts nil)
-  (org-todo-keywords '((sequence "TODO" "WORKING" "WAITING" "|" "DONE" "CANCELLED")))
+  (org-todo-keywords '((sequence "TODO" "WORKING" "WAITING" "|" "DONE" "CANCELLED" "HOLD")))
 
   :config
   (defun pt/org-mode-hook ())
@@ -323,9 +333,13 @@
 				((org-agenda-block-separator nil) (org-agenda-overriding-header "\n")))
 		  (todo "WORKING"
 				((org-agenda-block-separator nil) (org-agenda-overriding-header "\n")))
+		  (todo "HOLD"
+				((org-agenda-block-separator nil) (org-agenda-overriding-header "\n")))
 		  (todo "TODO"
 				((org-agenda-block-separator nil) (org-agenda-overriding-header "\n")))
 		  ))))
+
+(load "~/configuration/org-publish.el")
 
 (put 'erase-buffer 'disabled nil)
 
@@ -402,12 +416,13 @@
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
-  (corfu-auto-delay 0)
-  (corfu-auto-timer 0.5)
-  (corfu-auto-prefix 1)
+  (corfu-auto-delay 1.0)
+  (corfu-auto-timer 1.0)
+  (corfu-auto-prefix 3)
   (corfu-separator ?\s)          ;; Orderless field separator
   (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   (corfu-quit-no-match t)      ;; Never quit, even if there is no match
+  (completion-styles '(orderless initials basic))
   ;; (corfu-preview-current nil)    ;; Disable current candidate preview
   ;; (corfu-preselect-first nil)    ;; Disable candidate preselection
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
@@ -441,44 +456,7 @@
 
 ;; Cape with corfu
 ;; Add extensions
-(use-package cape
-  ;; Bind dedicated completion commands
-  ;; Alternative prefix keys: C-c p, M-p, M-+, ...
-  :bind (("C-c c p" . completion-at-point) ;; capf
-         ("C-c c t" . complete-tag)        ;; etags
-         ("C-c c d" . cape-dabbrev)        ;; or dabbrev-completion
-         ("C-c c h" . cape-history)
-         ("C-c c f" . cape-file)
-         ("C-c c k" . cape-keyword)
-         ("C-c c s" . cape-elisp-symbol)
-         ("C-c c e" . cape-elisp-block)
-         ("C-c c a" . cape-abbrev)
-         ("C-c c l" . cape-line)
-         ("C-c c w" . cape-dict)
-         ("C-c c :" . cape-emoji)
-         ("C-c c \\" . cape-tex)
-         ("C-c c _" . cape-tex)
-         ("C-c c ^" . cape-tex)
-         ("C-c c &" . cape-sgml)
-         ("C-c c r" . cape-rfc1345))
-  :init
-  ;; Add to the global default value of `completion-at-point-functions' which is
-  ;; used by `completion-at-point'.  The order of the functions matters, the
-  ;; first function returning a result wins.  Note that the list of buffer-local
-  ;; completion functions takes precedence over the global list.
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
-  ;;(add-to-list 'completion-at-point-functions #'cape-history)
-  ;;(add-to-list 'completion-at-point-functions #'cape-keyword)
-  ;;(add-to-list 'completion-at-point-functions #'cape-tex)
-  ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
-  ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
-  ;;(add-to-list 'completion-at-point-functions #'cape-abbrev)
-  ;;(add-to-list 'completion-at-point-functions #'cape-dict)
-  ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
-  ;;(add-to-list 'completion-at-point-functions #'cape-line)
-  )
+(use-package cape :ensure t)
 
 ;; yasnippet configuration
 (use-package yasnippet :ensure t :diminish yas-minor-mode :config (yas-global-mode t))
@@ -496,12 +474,12 @@
   (treemacs-follow-mode t)
   (treemacs-filewatch-mode t)
   (treemacs-fringe-indicator-mode `always)
-
   :commands (treemacs))
 
 (add-hook 'treemacs-mode-hook (lambda() (display-line-numbers-mode -1)))
 (use-package treemacs-icons-dired :hook (dired-mode . treemacs-icons-dired-enable-once) :ensure t)
 (add-hook 'dired-mode-hook 'treemacs-icons-dired-mode)
+(use-package lsp-treemacs :ensure t)
 
 ;; Git Info in Dired
 (use-package dired-git-info :ensure t :after dired :commands (dired-git-info-mode))
@@ -653,7 +631,7 @@
   )
 
 (use-package consult-ls-git :after consult)
-(use-package consult-eglot :after consult)
+;;(use-package consult-eglot :after consult)
 (use-package consult-yasnippet :after consult)
 
 ;; XML Mode
@@ -674,7 +652,8 @@
         (if (called-interactively-p t)
             (message "/%s" (mapconcat 'identity path "/"))
           (format "/%s" (mapconcat 'identity path "/")))))))
-
+(setq nxml-child-indent 4 nxml-attribute-indent 4)
+(setq nxml-outline-child-indent 4)
 (defun xml-find-file-hook ()
   (when (derived-mode-p 'nxml-mode)
     (which-function-mode t)
@@ -758,13 +737,75 @@
 ;; PHP
 (use-package php-mode)
 
+;;; lsp-mode
+(use-package lsp-mode :ensure t
+  :init
+  (setq lsp-keymap-prefix "C-c l"
+		lsp-keep-workspace-alive nil
+		lsp-signature-doc-lines 5
+		lsp-lens-enable t)
+  (defun my/lsp-mode-setup-completion ()
+	(setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+		  '(orderless)))
+  :hook
+  (java-mode . lsp-deferred)
+  (java-ts-mode . lsp-deferred)
+  (lsp-mode . lsp-enable-which-key-integration)
+  (lsp-completion-mode . my/lsp-mode-setup-completion)
+  :commands
+  (lsp lsp-deferred)
+  :custom
+  (lsp-completion-provider :none)
+  :config
+  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map))
+
+;; lsp-ui
+(use-package lsp-ui :ensure t
+  :hook
+  (lsp-mode . lsp-ui-mode)
+  :commands
+  (lsp-ui-mode)
+  :init
+  (setq lsp-ui-doc-position 'bottom
+		lsp-ui-doc-side 'right
+		lsp-ui-doc-delay 1.0
+		lsp-ui-doc-show-with-cursor t
+		lsp-ui-sideline-update-mode 'point))
+
+(use-package dap-mode
+  :after lsp-mode
+  :config (dap-auto-configure-mode))
+(setq dap-auto-configure-features '(sessions locals controls tooltip))
+
+(setq lsp-idle-delay 0.5)
+(setq lsp-log-io nil)
+
+(add-hook 'prog-mode-hook #'lsp-deferred)
+
 ;; Java mode
-(use-package eglot-java :ensure t)
-(with-eval-after-load 'eglot-java
-  (define-key eglot-java-mode-map (kbd "C-c l n") #'eglot-java-file-new)
-  (define-key eglot-java-mode-map (kbd "C-c l x") #'eglot-java-run-main)
-  (define-key eglot-java-mode-map (kbd "C-c l t") #'eglot-java-run-test)
-  (define-key eglot-java-mode-map (kbd "C-c l r") #'eglot-rename))
+(use-package lsp-java :ensure t
+  :config
+  (add-hook 'java-mode-hook 'lsp)
+  (add-hook 'lsp-mode-hook #'lsp-lens-mode)
+  (add-hook 'java-mode-hook #'lsp-java-lens-mode))
+
+(setq lsp-java-format-settings-url "")
+(setq lsp-java-inhibit-message t)
+
+(use-package lsp-sonarlint
+  :custom
+  (lsp-sonarlint-auto-download t)
+  (lsp-sonarlint-show-analyzer-logs nil))
+
+;;(setq lsp-unzip-script lsp-ext-pwsh-script)
+
+;; (setq eglot-events-buffer-size 0)
+;; (use-package eglot-java :ensure t)
+;; (with-eval-after-load 'eglot-java
+;;   (define-key eglot-java-mode-map (kbd "C-c l n") #'eglot-java-file-new)
+;;   (define-key eglot-java-mode-map (kbd "C-c l x") #'eglot-java-run-main)
+;;   (define-key eglot-java-mode-map (kbd "C-c l t") #'eglot-java-run-test)
+;;   (define-key eglot-java-mode-map (kbd "C-c l r") #'eglot-rename))
 
 ;; CSS
 (require 'css-mode)
@@ -817,126 +858,52 @@
   :ensure t
   :config
   (setq rustic-format-on-save t)
-  (setq rustic-lsp-client 'eglot))
+  ;; setq rustic-lsp-client 'eglot)
+  )
 
 (use-package cargo-mode :ensure t)
 (add-to-list 'eglot-server-programs
              '((rust-ts-mode rust-mode) .
                ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
 
-(remove-hook 'rustic-mode-hook 'flycheck-mode)
-(add-hook 'rust-mode-hook 'eglot-ensure)
+;;(remove-hook 'rustic-mode-hook 'flycheck-mode)
+;;(add-hook 'rust-mode-hook 'eglot-ensure)
 
 ;; Eglot
 (add-hook 'prog-mode-hook 'flymake-mode)
 (add-hook 'prog-mode-hook 'corfu-mode)
 
-(add-hook 'java-ts-mode-hook 'eglot-ensure)
-(add-hook 'java-ts-mode-hook 'eglot-java-mode)
-(add-hook 'java-ts-mode-hook 'corfu-mode)
+;; (add-hook 'java-ts-mode-hook 'eglot-ensure)
+;; (add-hook 'java-ts-mode-hook 'eglot-java-mode)
+;; (add-hook 'java-ts-mode-hook 'corfu-mode)
 
-(add-hook 'php-ts-mode 'eglot-ensure)
-(add-hook 'c-ts-mode 'eglot-ensure)
-(add-hook 'sh-ts-mode 'eglot-ensure)
-(add-hook 'shell-ts-mode 'eglot-ensure)
-(add-hook 'css-ts-mode 'eglot-ensure)
-(add-hook 'json-ts-mode 'eglot-ensure)
-(add-hook 'js-ts-mode 'eglot-ensure)
-(add-hook 'perl-ts-mode 'eglot-ensure)
-(add-hook 'python-ts-mode 'eglot-ensure)
-(add-hook 'yaml-ts-mode 'eglot-ensure)
-(add-hook 'rust-ts-mode 'eglot-ensure)
+;; (add-hook 'php-ts-mode 'eglot-ensure)
+;; (add-hook 'c-ts-mode 'eglot-ensure)
+;; (add-hook 'sh-ts-mode 'eglot-ensure)
+;; (add-hook 'shell-ts-mode 'eglot-ensure)
+;; (add-hook 'css-ts-mode 'eglot-ensure)
+;; (add-hook 'json-ts-mode 'eglot-ensure)
+;; (add-hook 'js-ts-mode 'eglot-ensure)
+;; (add-hook 'perl-ts-mode 'eglot-ensure)
+;; (add-hook 'python-ts-mode 'eglot-ensure)
+;; (add-hook 'yaml-ts-mode 'eglot-ensure)
+;; (add-hook 'rust-ts-mode 'eglot-ensure)
 
-(define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
-(define-key eglot-mode-map (kbd "C-c l r") 'eglot-rename)
+;; (define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
+;; (define-key eglot-mode-map (kbd "C-c l r") 'eglot-rename)
 
 ;; Set Java VM for windows
 (when (eq system-type 'windows-nt)
-  (setenv "JAVA_HOME" "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\")
-  (setq lsp-java-java-path "C:\\Users\\leherv\\.jdks\\openjdk-18.0.1.1\\bin\\java")
-  (setenv "PATH" (concat "c:\\Program Files\\Git\\usr\\bin;" (getenv "PATH"))))
+  (setq lsp-java-configuration-runtimes '[(:name "JavaSE-11" :path "C:\\Users\\leherv\\.jdks\\openjdk-11.0.9.1\\") (:name "JavaSE-22" :path "C:\\Users\\leherv\\.jdks\\jdk-22.0.2\\")])
+  (setenv "JAVA_HOME" "C:\\Users\\leherv\\.jdks\\jdk-22.0.2\\")
+  (setq lsp-java-java-path "C:\\Users\\leherv\\.jdks\\jdk-22.0.2\\bin\\java")
+  (setenv "PATH" (concat "c:\\Program Files\\Git\\usr\\bin;~\\.cargo\\bin;" (getenv "PATH"))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(connection-local-criteria-alist
-   '(((:application tramp)
-	  tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
- '(connection-local-profile-alist
-   '((tramp-connection-local-darwin-ps-profile
-	  (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
-	  (tramp-process-attributes-ps-format
-	   (pid . number)
-	   (euid . number)
-	   (user . string)
-	   (egid . number)
-	   (comm . 52)
-	   (state . 5)
-	   (ppid . number)
-	   (pgrp . number)
-	   (sess . number)
-	   (ttname . string)
-	   (tpgid . number)
-	   (minflt . number)
-	   (majflt . number)
-	   (time . tramp-ps-time)
-	   (pri . number)
-	   (nice . number)
-	   (vsize . number)
-	   (rss . number)
-	   (etime . tramp-ps-time)
-	   (pcpu . number)
-	   (pmem . number)
-	   (args)))
-	 (tramp-connection-local-busybox-ps-profile
-	  (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
-	  (tramp-process-attributes-ps-format
-	   (pid . number)
-	   (user . string)
-	   (group . string)
-	   (comm . 52)
-	   (state . 5)
-	   (ppid . number)
-	   (pgrp . number)
-	   (ttname . string)
-	   (time . tramp-ps-time)
-	   (nice . number)
-	   (etime . tramp-ps-time)
-	   (args)))
-	 (tramp-connection-local-bsd-ps-profile
-	  (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
-	  (tramp-process-attributes-ps-format
-	   (pid . number)
-	   (euid . number)
-	   (user . string)
-	   (egid . number)
-	   (group . string)
-	   (comm . 52)
-	   (state . string)
-	   (ppid . number)
-	   (pgrp . number)
-	   (sess . number)
-	   (ttname . string)
-	   (tpgid . number)
-	   (minflt . number)
-	   (majflt . number)
-	   (time . tramp-ps-time)
-	   (pri . number)
-	   (nice . number)
-	   (vsize . number)
-	   (rss . number)
-	   (etime . number)
-	   (pcpu . number)
-	   (pmem . number)
-	   (args)))
-	 (tramp-connection-local-default-shell-profile
-	  (shell-file-name . "/bin/bash")
-	  (shell-command-switch . "-c"))
-	 (tramp-connection-local-default-system-profile
-	  (path-separator . ":")
-	  (null-device . "/dev/null"))))
  '(org-file-apps
    '((auto-mode . emacs)
 	 (directory . emacs)
@@ -944,8 +911,7 @@
 	 ("\\.pdf\\'" . default)
 	 ("\\.docx?\\'" . "open %s")
 	 ("\\.xlsm?\\'" . "open %s")))
- '(package-selected-packages
-   '(visual-fill-column cape vc-defer yasnippet-snippets which-key vlf vertico unicode-fonts treesit-auto treemacs-icons-dired smartparens rustic ripgrep rainbow-delimiters pyvenv python-black prescient pkg-info php-mode org-roam orderless nord-theme marginalia magit json-mode iedit htmlize highlight-indent-guides gcmh embark-consult eglot-java dired-git-info dimmer diminish diff-hl csv-mode crux corfu consult-yasnippet consult-ls-git consult-flycheck consult-eglot cargo-mode auto-package-update apheleia anaconda-mode all-the-icons)))
+ )
 
 (provide 'init)
 ;;; init.el ends here
