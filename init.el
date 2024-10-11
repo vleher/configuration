@@ -463,9 +463,9 @@
 (use-package yasnippet-snippets :diminish yas-minor-mode)
 
 ;; Flymake mode
-(with-eval-after-load "flymake"
-  (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
-  (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error))
+;; (with-eval-after-load "flymake"
+;;   (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
+;;   (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error))
 
 ;;;;; Treemacs ;;;;;;
 (use-package treemacs
@@ -791,11 +791,14 @@
 
 (setq lsp-java-format-settings-url "")
 (setq lsp-java-inhibit-message t)
+(setq lsp-java-format-tab-size 4)
 
 (use-package lsp-sonarlint
   :custom
   (lsp-sonarlint-auto-download t)
   (lsp-sonarlint-show-analyzer-logs nil))
+
+(add-to-list 'lsp-sonarlint-modes-enabled  'java-ts-mode)
 
 ;;(setq lsp-unzip-script lsp-ext-pwsh-script)
 
@@ -862,15 +865,15 @@
   )
 
 (use-package cargo-mode :ensure t)
-(add-to-list 'eglot-server-programs
-             '((rust-ts-mode rust-mode) .
-               ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
+;; (add-to-list 'eglot-server-programs
+;;              '((rust-ts-mode rust-mode) .
+;;                ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
 
 ;;(remove-hook 'rustic-mode-hook 'flycheck-mode)
 ;;(add-hook 'rust-mode-hook 'eglot-ensure)
 
 ;; Eglot
-(add-hook 'prog-mode-hook 'flymake-mode)
+;;(add-hook 'prog-mode-hook 'flymake-mode)
 (add-hook 'prog-mode-hook 'corfu-mode)
 
 ;; (add-hook 'java-ts-mode-hook 'eglot-ensure)
