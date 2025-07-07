@@ -37,42 +37,18 @@
 ;; Make sure packages are downloaded and installed before they are run
 ;; also frees you from having to put :ensure t after installing EVERY PACKAGE.
 (setq use-package-always-ensure t)
-(setq lexical-binding t)
-(setq org-default-notes-dir "~/workspace/notes/")
-(setq frame-resize-pixelwise t)
-
-;;(setq debug-on-error t)
 (setq package-native-compile t)
-(setq native-comp-speed 3)
+
+(setq lexical-binding t)
+(setq frame-resize-pixelwise t)
+;;(setq debug-on-error t)
 
 ;; Garbage collect at the end of the startup
 (add-hook 'after-init-hook #'garbage-collect t)
 
-;; package update configuration
-(use-package auto-package-update
-  :defer 10
-  :config
-  ;; Delete residual old versions
-  (setq auto-package-update-delete-old-versions t)
-  ;; Do not bother me when updates have taken place.
-  (setq auto-package-update-hide-results t)
-  ;; Update installed packages at startup if there is an update pending.
-  (auto-package-update-maybe))
-
 ;; Load server if not already running
 (load "server")
 (unless (server-running-p) (server-start))
-
-;; Theme configuration
-(use-package nord-theme :ensure t :config (setq nord-region-highlight "frost"))
-(load-theme 'nord t)
-
-;; Try to fix the mode line
-(use-package diminish :ensure t :config (diminish 'visual-line-mode))
-
-;; Garbage Collection
-(use-package gcmh :ensure t :diminish)
-(gcmh-mode 1)
 
 ;; Configure the Emacs Frame
 (setq inhibit-startup-screen t)
@@ -94,8 +70,6 @@
 (setq kill-do-not-save-duplicates t)
 (setq help-window-select t)
 
-(setq whitespace-line-column 264)
-
 ;;set the line number mode to true
 (setq line-number-mode t)
 (global-display-line-numbers-mode t)
@@ -105,9 +79,34 @@
 (global-font-lock-mode t)
 (global-hl-line-mode t)
 
+;; package update configuration
+(use-package auto-package-update
+  :ensure t
+  :defer 10
+  :config
+  ;; Delete residual old versions
+  (setq auto-package-update-delete-old-versions t)
+  ;; Do not bother me when updates have taken place.
+  (setq auto-package-update-hide-results t)
+  ;; Update installed packages at startup if there is an update pending.
+  (auto-package-update-maybe))
+
+;;; Theme configuration
+(use-package nord-theme
+  :ensure t
+  :config (setq nord-region-highlight "frost"))
+(load-theme 'nord t)
+
+;; Try to fix the mode line
+(use-package diminish  :config (diminish 'visual-line-mode))
+
+;; Garbage Collection
+(use-package gcmh  :diminish)
+(gcmh-mode 1)
+
 ;; Visual Fill Column
 (global-visual-line-mode t)
-(use-package visual-fill-column :ensure t
+(use-package visual-fill-column
   :config
   (setq-default visual-fill-column-width 300)
   (setq-default visual-line-fill-column-mode t)
@@ -115,7 +114,7 @@
   (setq-default visual-fill-column-enable-sensible-window-split t)
   (setq-default visual-fill-column-fringes-outside-margins t) )
 (global-visual-fill-column-mode t)
-
+(setq whitespace-line-column 264)
 
 (save-place-mode)
 
@@ -128,13 +127,12 @@
 
 ;; Windows Hacks
 (use-package vc-defer
-  :ensure t
   :diminish vc-defer-mode
   :config (add-to-list 'vc-defer-backends 'git) (vc-defer-mode))
 
 ;; Parenthesis
 (show-paren-mode 1)
-(use-package smartparens :ensure t :diminish smartparens-mode :config (smartparens-mode t))
+(use-package smartparens  :diminish smartparens-mode :config (smartparens-mode t))
 ;; Automatically add ending brackets and braces
 (electric-pair-mode 1)
 ;; Make return key also do indent in the current buffer
@@ -160,7 +158,6 @@
 
 ;; Unicode fonts
 (use-package unicode-fonts
-  :ensure t
   :config
   (unicode-fonts-setup))
 
@@ -187,7 +184,7 @@
 (use-package vlf)
 
 ;; Orderless
-(use-package orderless :ensure t
+(use-package orderless
   :init
   ;; Set completion-styles
   (setq completion-styles '(initials flex partial-completion basic orderless)
@@ -198,7 +195,7 @@
 (windmove-default-keybindings)
 
 ;; Ace Window
-(use-package ace-window :ensure t)
+(use-package ace-window )
 (global-set-key (kbd "M-o") 'ace-window)
 (setq aw-keys '(?a ?h ?e ?t ?i ?s ?w ?n))
 (setq aw-dispatch-always t)
@@ -210,9 +207,15 @@
 ;; Resume the previous session
 (desktop-save-mode 1)
 ;; Smoother scrolling
-(setq scroll-margin 5)
-(setq scroll-conservatively 100)
-(setq scroll-preserve-screen-position 1)
+;; (setq scroll-margin 5)
+;; (setq scroll-conservatively 100)
+;; (setq scroll-preserve-screen-position 1)
+(use-package smooth-scrolling
+  :config
+  (setq smooth-scrolling-mode t))
+(use-package good-scroll
+  :config
+  (setq good-scroll-mode t))
 
 ;; Put backup files neatly away
 (let ((backup-dir (concat user-emacs-directory	"/backups"))
@@ -256,7 +259,6 @@
 ;; Treesitter
 (use-package treesit-auto
   :demand t
-  :ensure t
   :custom (treesit-auto-install 'prompt)
   :config (treesit-auto-add-to-auto-mode-alist 'all)(global-treesit-auto-mode))
 
@@ -275,7 +277,7 @@
 (global-set-key (kbd "C-c s") 'crux-create-scratch-buffer)
 
 ;; Apheleia
-(use-package apheleia :ensure t :diminish :config (apheleia-global-mode +1))
+(use-package apheleia  :diminish :config (apheleia-global-mode +1))
 
 ;; Tramp
 (use-package tramp)
@@ -292,7 +294,6 @@
   :hook ((org-mode . visual-line-mode) (org-mode . pt/org-mode-hook))
   :hook ((org-src-mode . display-line-numbers-mode))
   :bind (("C-c a" . org-agenda))
-
   :custom
   (org-adapt-indentation t)
   (org-indent-mode t)
@@ -317,7 +318,7 @@
   (defun pt/org-mode-hook ())
   (defun make-inserter (c) '(lambda () (interactive) (insert-char c)))
   (defun zero-width () (interactive) (insert "​")))
-
+(setq org-default-notes-dir "~/workspace/notes/")
 (setq org-agenda-prefix-format
 	  '((agenda . " %i %-36c%?-18t% s")
 		(todo   . " %i %-36c%?-18t% s")
@@ -361,17 +362,20 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-headline-done ((t nil)))
- '(org-level-1 ((t (:extend nil :foreground "#8FBCBB" :weight extra-bold :height 1.1)))))
+ '(org-level-1 ((t (:extend nil :foreground "#8FBCBB" :weight extra-bold :height 1.1))))
+ '(shadow ((t (:foreground "gray52")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Custom splitting functions ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun vsplit-last-buffer ()
+  "Splits window vertically and load the next buffer."
   (interactive)
   (split-window-vertically)
   (other-window 1 nil)
   (switch-to-next-buffer))
 (defun hsplit-last-buffer ()
+  "Splits window horizontally and load the next buffer."
   (interactive)
   (split-window-horizontally)
   (other-window 1 nil)
@@ -381,7 +385,7 @@
 (global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
 
 ;; All the Icons
-(use-package all-the-icons :ensure t)
+(use-package all-the-icons )
 
 ;; Magit configuration
 (use-package magit
@@ -416,13 +420,14 @@
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
-  (corfu-auto-delay 1.0)
-  (corfu-auto-timer 1.0)
-  (corfu-auto-prefix 3)
+  (corfu-auto-delay 0.50)
+  (corfu-auto-timer 0.750)
+  (corfu-auto-prefix 2)
+  (corfu-min-width 80)
   (corfu-separator ?\s)          ;; Orderless field separator
   (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   (corfu-quit-no-match t)      ;; Never quit, even if there is no match
-  (completion-styles '(orderless initials basic))
+  (completion-styles '(initials basic orderless))
   ;; (corfu-preview-current nil)    ;; Disable current candidate preview
   ;; (corfu-preselect-first nil)    ;; Disable candidate preselection
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
@@ -452,24 +457,54 @@
 
   ;; Enable indentation+completion using the TAB key.
   ;; `completion-at-point' is often bound to M-TAB.
-  (setq tab-always-indent 'complete))
+  ;;(setq tab-always-indent 'complete)
+  )
 
 ;; Cape with corfu
 ;; Add extensions
-(use-package cape :ensure t)
+(use-package cape)
 
 ;; yasnippet configuration
-(use-package yasnippet :ensure t :diminish yas-minor-mode :config (yas-global-mode t))
+(use-package yasnippet  :diminish yas-minor-mode :config (yas-global-mode t))
 (use-package yasnippet-snippets :diminish yas-minor-mode)
 
 ;; Flymake mode
-;; (with-eval-after-load "flymake"
-;;   (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
-;;   (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error))
+(with-eval-after-load "flymake"
+  (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
+  (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error))
+
+;; Enable flyover-mode globally
+(use-package flyover)
+(add-hook 'flycheck-mode-hook #'flyover-mode)
+
+;; Configure which error levels to display
+;; Possible values: error, warning, info
+(setq flyover-levels '(error warning info))  ; Show all levels
+;; (setq flyover-levels '(error warning))    ; Show only errors and warnings
+;; (setq flyover-levels '(error))            ; Show only errors
+;; Use theme colors for error/warning/info faces
+(setq flyover-use-theme-colors t)
+
+;; Adjust background lightness (lower values = darker)
+(setq flyover-background-lightness 45)
+
+;; Make icon background darker than foreground
+(setq flyover-percent-darker 40)
+
+(setq flyover-text-tint 'lighter) ;; or 'darker or nil
+
+;; "Percentage to lighten or darken the text when tinting is enabled."
+(setq flyover-text-tint-percent 50)
+;; Choose which checkers to use (flycheck, flymake, or both)
+(setq flyover-checkers '(flycheck flymake))
+
+;; Enable debug messages
+(setq flyover-debug nil)
+;; Time in seconds to wait before checking and displaying errors after a change
+(setq flyover-debounce-interval 0.2)
 
 ;;;;; Treemacs ;;;;;;
 (use-package treemacs
-  :ensure t
   :config
   (treemacs-follow-mode t)
   (treemacs-filewatch-mode t)
@@ -477,12 +512,11 @@
   :commands (treemacs))
 
 (add-hook 'treemacs-mode-hook (lambda() (display-line-numbers-mode -1)))
-(use-package treemacs-icons-dired :hook (dired-mode . treemacs-icons-dired-enable-once) :ensure t)
+(use-package treemacs-icons-dired :hook (dired-mode . treemacs-icons-dired-enable-once) )
 (add-hook 'dired-mode-hook 'treemacs-icons-dired-mode)
-(use-package lsp-treemacs :ensure t)
 
 ;; Git Info in Dired
-(use-package dired-git-info :ensure t :after dired :commands (dired-git-info-mode))
+(use-package dired-git-info  :after dired :commands (dired-git-info-mode))
 
 (use-package hydra)
 
@@ -631,7 +665,7 @@
   )
 
 (use-package consult-ls-git :after consult)
-;;(use-package consult-eglot :after consult)
+(use-package consult-eglot :after consult)
 (use-package consult-yasnippet :after consult)
 
 ;; XML Mode
@@ -655,6 +689,7 @@
 (setq nxml-child-indent 4 nxml-attribute-indent 4)
 (setq nxml-outline-child-indent 4)
 (defun xml-find-file-hook ()
+  "XML Find file hook to switch to nxml mode and display xpath."
   (when (derived-mode-p 'nxml-mode)
     (which-function-mode t)
     (setq which-func-mode t)
@@ -715,7 +750,6 @@
        (funcall #',split-type)
        (call-interactively #',fn))))
 
-
 ;; Avy
 (use-package avy)
 (avy-setup-default)
@@ -738,77 +772,107 @@
 (use-package php-mode)
 
 ;;; lsp-mode
-(use-package lsp-mode :ensure t
-  :init
-  (setq lsp-keymap-prefix "C-c l"
-		lsp-keep-workspace-alive nil
-		lsp-signature-doc-lines 5
-		lsp-lens-enable t)
-  (defun my/lsp-mode-setup-completion ()
-	(setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-		  '(orderless)))
-  :hook
-  (java-mode . lsp-deferred)
-  (java-ts-mode . lsp-deferred)
-  (lsp-mode . lsp-enable-which-key-integration)
-  (lsp-completion-mode . my/lsp-mode-setup-completion)
-  :commands
-  (lsp lsp-deferred)
-  :custom
-  (lsp-completion-provider :none)
-  :config
-  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map))
+;; (use-package lsp-mode
+;;   :init
+;;   (setq lsp-keymap-prefix "C-c l"
+;; 		lsp-keep-workspace-alive nil
+;; 		lsp-signature-doc-lines 5
+;; 		lsp-lens-enable t)
+;;   (defun my/lsp-mode-setup-completion ()
+;; 	(setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+;; 		  '(orderless)))
+;;   :hook
+;;   (java-mode . lsp-deferred)
+;;   (java-ts-mode . lsp-deferred)
+;;   (lsp-mode . lsp-enable-which-key-integration)
+;;   (lsp-completion-mode . my/lsp-mode-setup-completion)
+;;   :commands
+;;   (lsp lsp-deferred)
+;;   :custom
+;;   (lsp-completion-provider :none)
+;;   :config
+;;   (define-key lsp-mode-map (kbd "C-c l") lsp-command-map))
 
 ;; lsp-ui
-(use-package lsp-ui :ensure t
-  :hook
-  (lsp-mode . lsp-ui-mode)
-  :commands
-  (lsp-ui-mode)
-  :init
-  (setq lsp-ui-doc-position 'bottom
-		lsp-ui-doc-side 'right
-		lsp-ui-doc-delay 1.0
-		lsp-ui-doc-show-with-cursor t
-		lsp-ui-sideline-update-mode 'point))
+;; (use-package lsp-ui
+;;   :hook
+;;   (lsp-mode . lsp-ui-mode)
+;;   :commands
+;;   (lsp-ui-mode)
+;;   :init
+;;   (setq lsp-ui-doc-position 'bottom
+;; 		lsp-ui-doc-side 'right
+;; 		lsp-ui-doc-delay 1.0
+;; 		lsp-ui-doc-show-with-cursor t
+;; 		lsp-ui-sideline-update-mode 'point))
 
-(use-package dap-mode
-  :after lsp-mode
-  :config (dap-auto-configure-mode))
-(setq dap-auto-configure-features '(sessions locals controls tooltip))
+;; (use-package dap-mode
+;;   :after lsp-mode
+;;   :config (dap-auto-configure-mode))
+;; (setq dap-auto-configure-features '(sessions locals controls tooltip))
 
-(setq lsp-idle-delay 0.5)
-(setq lsp-log-io nil)
+;; (setq lsp-idle-delay 0.5)
+;; (setq lsp-log-io nil)
 
-(add-hook 'prog-mode-hook #'lsp-deferred)
+;;(add-hook 'prog-mode-hook #'lsp-deferred)
 
 ;; Java mode
-(use-package lsp-java :ensure t
-  :config
-  (add-hook 'java-mode-hook 'lsp)
-  (add-hook 'lsp-mode-hook #'lsp-lens-mode)
-  (add-hook 'java-mode-hook #'lsp-java-lens-mode))
+;; (use-package lsp-java
+;;   :config
+;;   (add-hook 'java-mode-hook 'lsp)
+;;   (add-hook 'java-ts-mode-hook 'lsp)
+;;   (add-hook 'lsp-mode-hook #'lsp-lens-mode)
+;;   (add-hook 'java-mode-hook #'lsp-java-lens-mode))
 
-(setq lsp-java-format-settings-url "")
-(setq lsp-java-inhibit-message t)
-(setq lsp-java-format-tab-size 4)
+;; (setq lsp-java-format-settings-url "")
+;; (setq lsp-java-inhibit-message t)
+;; (setq lsp-java-format-tab-size 4)
 
-(use-package lsp-sonarlint
-  :custom
-  (lsp-sonarlint-auto-download t)
-  (lsp-sonarlint-show-analyzer-logs nil))
+;; (use-package lsp-sonarlint
+;;   :custom
+;;   (lsp-sonarlint-auto-download t)
+;;   (lsp-sonarlint-show-analyzer-logs nil))
 
-(add-to-list 'lsp-sonarlint-modes-enabled  'java-ts-mode)
+;; (add-to-list 'lsp-sonarlint-modes-enabled  'java-ts-mode)
 
 ;;(setq lsp-unzip-script lsp-ext-pwsh-script)
 
-;; (setq eglot-events-buffer-size 0)
-;; (use-package eglot-java :ensure t)
-;; (with-eval-after-load 'eglot-java
-;;   (define-key eglot-java-mode-map (kbd "C-c l n") #'eglot-java-file-new)
-;;   (define-key eglot-java-mode-map (kbd "C-c l x") #'eglot-java-run-main)
-;;   (define-key eglot-java-mode-map (kbd "C-c l t") #'eglot-java-run-test)
-;;   (define-key eglot-java-mode-map (kbd "C-c l r") #'eglot-rename))
+(setq eglot-events-buffer-size 0)
+(setq eglot-report-progress nil)
+(use-package eglot-java )
+(with-eval-after-load 'eglot-java
+  (define-key eglot-java-mode-map (kbd "C-c l n") #'eglot-java-file-new)
+  (define-key eglot-java-mode-map (kbd "C-c l x") #'eglot-java-run-main)
+  (define-key eglot-java-mode-map (kbd "C-c l t") #'eglot-java-run-test)
+  (define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
+  (define-key eglot-mode-map (kbd "C-c l r") 'eglot-rename)
+  (define-key eglot-java-mode-map (kbd "C-c l q") #'eglot-code-action-quickfix)
+  (define-key eglot-java-mode-map (kbd "C-c l r") #'eglot-rename))
+
+(add-hook 'java-mode-hook (lambda ()
+							(remove-hook 'eglot-connect-hook #'eglot-signal-didChangeConfiguration t)))
+
+(use-package cognitive-complexity :load-path "~/workspace/cognitive-complexity")
+
+;; REPL development
+;; (use-package repl-driven-development
+;;   :config
+;;   (repl-driven-development [C-x C-j] java)       ;; e“X”ecute “j”ava
+;;   (repl-driven-development [C-x C-n] javascript) ;; e“X”ecute “n”odejs
+;;   (repl-driven-development [C-x C-p] python)     ;; e“X”ecute “p”ython
+;;   (repl-driven-development [C-x C-t] terminal))  ;; e“X”ecute “t”erminal
+
+
+;; Java Formatting
+;; (add-to-list 'eglot-server-programs
+;; 			 `((java-mode java-ts-mode) . ("jdtls"
+;; 										   :initializationOptions
+;; 										   (:settings
+;; 											(:java
+;; 											 (:format (:enabled t :settings (:url "~/workspace/conf/eclipse-formatter-java.xml" :profile "google-variant")))
+;; 											 :extendedClientCapabilities (:classFileContentsSupport t)))
+;; 										   ))
+;; 			 )
 
 ;; CSS
 (require 'css-mode)
@@ -835,86 +899,92 @@
 (require 'python)
 (setq python-indent-offset 2)
 (use-package python-black
-  :ensure t
   :bind (("C-c b" . python-black-buffer)))
 
 (use-package pyvenv
-  :ensure t
   :config
   (pyvenv-mode 1))
 
 (use-package anaconda-mode
-  :ensure t
   :bind (("C-c C-x" . next-error))
   :config
   (require 'pyvenv)
   (add-hook 'python-ts-mode-hook 'anaconda-mode))
 
 (use-package highlight-indent-guides
-  :ensure t
   :config
   (add-hook 'python-ts-mode-hook 'highlight-indent-guides-mode)
   (setq highlight-indent-guides-method 'character))
 
 ;; Rust Configuration
 (use-package rustic
-  :ensure t
   :config
   (setq rustic-format-on-save t)
-  ;; setq rustic-lsp-client 'eglot)
+  (setq rustic-lsp-client 'eglot)
   )
 
-(use-package cargo-mode :ensure t)
-;; (add-to-list 'eglot-server-programs
-;;              '((rust-ts-mode rust-mode) .
-;;                ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
+(use-package cargo-mode )
+(add-to-list 'eglot-server-programs
+             '((rust-ts-mode rust-mode) .
+               ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
 
-;;(remove-hook 'rustic-mode-hook 'flycheck-mode)
-;;(add-hook 'rust-mode-hook 'eglot-ensure)
+(remove-hook 'rustic-mode-hook 'flycheck-mode)
+(add-hook 'rust-mode-hook 'eglot-ensure)
 
 ;; Eglot
-;;(add-hook 'prog-mode-hook 'flymake-mode)
+(add-hook 'prog-mode-hook 'flymake-mode)
 (add-hook 'prog-mode-hook 'corfu-mode)
 
-;; (add-hook 'java-ts-mode-hook 'eglot-ensure)
-;; (add-hook 'java-ts-mode-hook 'eglot-java-mode)
-;; (add-hook 'java-ts-mode-hook 'corfu-mode)
+(add-hook 'java-ts-mode-hook 'eglot-ensure)
+(add-hook 'java-ts-mode-hook 'eglot-java-mode)
+(add-hook 'java-ts-mode-hook 'corfu-mode)
 
-;; (add-hook 'php-ts-mode 'eglot-ensure)
-;; (add-hook 'c-ts-mode 'eglot-ensure)
-;; (add-hook 'sh-ts-mode 'eglot-ensure)
-;; (add-hook 'shell-ts-mode 'eglot-ensure)
-;; (add-hook 'css-ts-mode 'eglot-ensure)
-;; (add-hook 'json-ts-mode 'eglot-ensure)
-;; (add-hook 'js-ts-mode 'eglot-ensure)
-;; (add-hook 'perl-ts-mode 'eglot-ensure)
-;; (add-hook 'python-ts-mode 'eglot-ensure)
-;; (add-hook 'yaml-ts-mode 'eglot-ensure)
-;; (add-hook 'rust-ts-mode 'eglot-ensure)
-
-;; (define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
-;; (define-key eglot-mode-map (kbd "C-c l r") 'eglot-rename)
+(add-hook 'php-ts-mode 'eglot-ensure)
+(add-hook 'c-ts-mode 'eglot-ensure)
+(add-hook 'c++-ts-mode 'eglot-ensure)
+(add-hook 'sh-ts-mode 'eglot-ensure)
+(add-hook 'shell-ts-mode 'eglot-ensure)
+(add-hook 'css-ts-mode 'eglot-ensure)
+(add-hook 'json-ts-mode 'eglot-ensure)
+(add-hook 'js-ts-mode 'eglot-ensure)
+(add-hook 'perl-ts-mode 'eglot-ensure)
+(add-hook 'python-ts-mode 'eglot-ensure)
+(add-hook 'yaml-ts-mode 'eglot-ensure)
+(add-hook 'rust-ts-mode 'eglot-ensure)
 
 ;; Set Java VM for windows
 (when (eq system-type 'windows-nt)
-  (setq lsp-java-configuration-runtimes '[(:name "JavaSE-11" :path "C:\\Users\\leherv\\.jdks\\openjdk-11.0.9.1\\") (:name "JavaSE-22" :path "C:\\Users\\leherv\\.jdks\\jdk-22.0.2\\")])
-  (setenv "JAVA_HOME" "C:\\Users\\leherv\\.jdks\\jdk-22.0.2\\")
-  (setq lsp-java-java-path "C:\\Users\\leherv\\.jdks\\jdk-22.0.2\\bin\\java")
-  (setenv "PATH" (concat "c:\\Program Files\\Git\\usr\\bin;~\\.cargo\\bin;" (getenv "PATH"))))
+  (setq lsp-java-configuration-runtimes '[(:name "JavaSE-11" :path "C:/Users/leherv/.jdks/openjdk-11.0.9.1") 	 (:name "JavaSE-23" :path "C:/Users/leherv/.jdks/jdk-23.0.1/")])
+  (setenv "JAVA_HOME" "C:/Users/leherv/.jdks/jdk-23.0.1/")
+  (setq lsp-java-java-path "C:/Users/leherv/.jdks/jdk-23.0.1/bin/java")
+  (setenv "PATH" "C:/msys64/ucrt64/bin;C:/msys64/usr/bin/"))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("98b4ef49c451350c28a8c20c35c4d2def5d0b8e5abbc962da498c423598a1cdd"
+	 default))
  '(org-file-apps
-   '((auto-mode . emacs)
-	 (directory . emacs)
-	 ("\\.x?html?\\'" . default)
-	 ("\\.pdf\\'" . default)
-	 ("\\.docx?\\'" . "open %s")
+   '((auto-mode . emacs) (directory . emacs) ("\\.x?html?\\'" . default)
+	 ("\\.pdf\\'" . default) ("\\.docx?\\'" . "open %s")
 	 ("\\.xlsm?\\'" . "open %s")))
- )
+ '(package-selected-packages
+   '(all-the-icons anaconda-mode apheleia auto-package-update cape
+				   cargo-mode cloc code-compass consult-eglot
+				   consult-ls-git consult-yasnippet corfu crux
+				   csv-mode diff-hl diminish dimmer dired-git-info
+				   eglot-java embark-consult flyover gcmh golden-ratio
+				   good-scroll highlight-indent-guides htmlize
+				   json-mode magit marginalia nord-theme orderless
+				   php-mode prescient python-black pyvenv
+				   rainbow-delimiters repl-driven-development ripgrep
+				   rustic smartparens smooth-scrolling
+				   treemacs-icons-dired treesit-auto unicode-fonts
+				   vc-defer vertico visual-fill-column vlf which-key
+				   yasnippet-snippets)))
 
 (provide 'init)
 ;;; init.el ends here

@@ -1,3 +1,5 @@
+
+
 " Set external editor command
 set editorcmd emacsclient -a \"\" -c -e '(progn (find-file "%f") (forward-line (1- %l)) (forward-char %c))'
 

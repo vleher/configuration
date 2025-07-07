@@ -25,7 +25,7 @@
   z-index: -100;
   opacity: 0;
 }
-
+/*
 .tabbrowser-tab {
 	display: none;
 	visibility: collapse;
@@ -38,11 +38,11 @@
     overflow: hidden;
 }
 
-/* Hides the tab bar */
+/* Hides the tab bar at the top
 #TabsToolbar {
 	visibility: collapse;
 }
-
-#titlebar {
-	display: none;
-}
+*/
+/* #titlebar { */
+/* 	display: none; */
+/* } */
